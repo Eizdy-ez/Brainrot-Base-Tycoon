@@ -230,8 +230,14 @@ function CarryManager.Start(c)
 		end
 	end
 	-- carried brainrots ride stacked above the head, bobbing
-	RunService.Heartbeat:Connect(function()
+	local poseAcc = 0
+	RunService.Heartbeat:Connect(function(dt)
 		local t = os.clock()
+		poseAcc += dt
+		local doPose = poseAcc > 0.06
+		if doPose then
+			poseAcc = 0
+		end
 		for player, carried in pairs(Carried) do
 			local character = player.Character
 			local head = character and character:FindFirstChild("Head")
@@ -242,6 +248,9 @@ function CarryManager.Start(c)
 						local bob = math.sin(t * 3 + i * 1.4) * 0.14
 						local target = head.CFrame * CFrame.new(0, 1.6 + (i - 1) * 2.05 + bob, 0)
 						body.CFrame = body.CFrame:Lerp(target, 0.45)
+						if doPose then
+							ctx.Factory.Pose(model, "Idle", t)
+						end
 					end
 				end
 			end

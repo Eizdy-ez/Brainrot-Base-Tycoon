@@ -268,6 +268,7 @@ function BaseManager.Start(c)
 						local a = pad.Anchor
 						pad.Model.PrimaryPart.CFrame = CFrame.new(a.X, a.Y + 1.6 + math.sin(t * 1.6 + i * 1.3) * 0.16, a.Z)
 							* CFrame.Angles(0, t * 0.7 + i, 0)
+						ctx.Factory.Pose(pad.Model, "Idle", t)
 					end
 				end
 			end

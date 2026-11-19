@@ -43,21 +43,21 @@ Config.Brainrots = {
 	{ Name = "Socktopus",       Rarity = 1, Income = 3,  Price = 50, Body = Color3.fromRGB(178, 156, 230), Accent = Color3.fromRGB(255, 170, 200), Accessory = { "Tentacles" } },
 	-- Rare
 	{ Name = "Lampadina",       Rarity = 2, Income = 8,  Body = Color3.fromRGB(64, 150, 150),  Accent = Color3.fromRGB(255, 214, 110), Accessory = { "LampHead" }, NoHead = true },
-	{ Name = "Biscotto Bot",    Rarity = 2, Income = 10, Body = Color3.fromRGB(216, 164, 94),  Accent = Color3.fromRGB(96, 54, 30),    Accessory = { "CookieDisc", "ChocChips", "Antenna" } },
-	{ Name = "Pumpkowl",        Rarity = 2, Income = 12, Body = Color3.fromRGB(240, 132, 40),  Accent = Color3.fromRGB(110, 76, 40),   Accessory = { "PumpkinRibs", "Wings", "EarTufts" } },
-	{ Name = "Raviolibot",      Rarity = 2, Income = 14, Body = Color3.fromRGB(246, 228, 178), Accent = Color3.fromRGB(170, 178, 190), Accessory = { "ForkAntenna", "CrimpEdge" } },
+	{ Name = "Biscotto Bot",    Rarity = 2, Income = 10, Body = Color3.fromRGB(216, 164, 94),  Accent = Color3.fromRGB(96, 54, 30),    Accessory = { "CookieHead", "CookieDisc", "ChocChips", "Antenna" }, NoHead = true },
+	{ Name = "Pumpkowl",        Rarity = 2, Income = 12, Body = Color3.fromRGB(240, 132, 40),  Accent = Color3.fromRGB(110, 76, 40),   Accessory = { "PumpkinHead", "PumpkinRibs", "Wings", "EarTufts" }, NoHead = true },
+	{ Name = "Raviolibot",      Rarity = 2, Income = 14, Body = Color3.fromRGB(246, 228, 178), Accent = Color3.fromRGB(170, 178, 190), Accessory = { "ForkAntenna", "CrimpEdge", "HeadFrame" } },
 	-- Epic
 	{ Name = "Disco Fungo",     Rarity = 3, Income = 45, Body = Color3.fromRGB(200, 60, 80),   Accent = Color3.fromRGB(210, 214, 224), Accessory = { "DiscoBall", "Headphones" } },
 	{ Name = "Capitano Teapot", Rarity = 3, Income = 55, Body = Color3.fromRGB(52, 66, 110),   Accent = Color3.fromRGB(255, 196, 66),  Accessory = { "TeapotHead", "PirateHat" }, NoHead = true },
 	{ Name = "Astro Jelly",     Rarity = 3, Income = 65, Body = Color3.fromRGB(255, 158, 205), Accent = Color3.fromRGB(96, 220, 255),  Accessory = { "JellyDome", "JellyTentacles", "Backpack" } },
 	{ Name = "Vroom Broom",     Rarity = 3, Income = 75, Body = Color3.fromRGB(150, 104, 58),  Accent = Color3.fromRGB(246, 214, 110), Accessory = { "BroomStick", "Bristles", "Wheels", "Shades" } },
-	{ Name = "Satelerror",      Rarity = 3, Income = 85, Body = Color3.fromRGB(112, 124, 148), Accent = Color3.fromRGB(96, 225, 255),  Accessory = { "SatDish", "SolarPanels", "SparkCoils" } },
+	{ Name = "Satelerror",      Rarity = 3, Income = 85, Body = Color3.fromRGB(112, 124, 148), Accent = Color3.fromRGB(96, 225, 255),  Accessory = { "TVHead", "SatDish", "SolarPanels", "SparkCoils" }, NoHead = true },
 	-- Legendary
 	{ Name = "Drake Frutto",    Rarity = 4, Income = 300, Body = Color3.fromRGB(240, 84, 140),  Accent = Color3.fromRGB(84, 200, 110),  Accessory = { "DragonWings", "Horns", "DragonTail" } },
 	{ Name = "Volpina Neon",    Rarity = 4, Income = 380, Body = Color3.fromRGB(245, 130, 50),  Accent = Color3.fromRGB(96, 235, 255),  Accessory = { "FoxEars", "FoxMuzzle", "TripleTail" } },
 	{ Name = "Tornadino",       Rarity = 4, Income = 450, Body = Color3.fromRGB(140, 152, 175), Accent = Color3.fromRGB(216, 178, 110), Accessory = { "TornadoBody", "CowboyHat" }, BodySize = Vector3.new(1.5, 2.3, 1.5) },
 	-- Mythic
-	{ Name = "Waffleone",       Rarity = 5, Income = 2000, Body = Color3.fromRGB(232, 176, 92),  Accent = Color3.fromRGB(150, 84, 30),   Accessory = { "WaffleGrid", "SyrupTop", "Crown" } },
+	{ Name = "Waffleone",       Rarity = 5, Income = 2000, Body = Color3.fromRGB(232, 176, 92),  Accent = Color3.fromRGB(150, 84, 30),   Accessory = { "WaffleGrid", "SyrupTop", "Crown", "Cape", "Scepter" } },
 	{ Name = "Balena Void",     Rarity = 5, Income = 2600, Body = Color3.fromRGB(52, 48, 120),   Accent = Color3.fromRGB(178, 120, 255), Accessory = { "WhaleTail", "Stars", "MoonFin" } },
 	{ Name = "Gnocco d'Oro",    Rarity = 5, Income = 3200, Body = Color3.fromRGB(255, 196, 64),  Accent = Color3.fromRGB(52, 220, 130),  Accessory = { "GemCore", "Crown" } },
 }
@@ -97,9 +97,13 @@ end
 
 --====================================================================--
 -- Zones. Fields are rectangles on the island; gates sit on the path.
--- Weights are the rarity roll inside that zone. GroundColor/NeonColor
--- drive the futuristic retheme: dark metal panels, neon accents that
--- get richer per tier.
+-- Weights are the rarity roll inside that zone. EVERY rarity has a
+-- nonzero weight in EVERY zone: no character is locked behind a paid
+-- gate — anything in the roster can rise out of a portal in the free
+-- first district and be bought there (higher districts just roll the
+-- top rarities far more often). GroundColor/NeonColor drive the
+-- futuristic retheme: dark metal panels, neon accents that get
+-- richer per tier.
 --====================================================================--
 Config.Zones = {
 	{
@@ -107,21 +111,21 @@ Config.Zones = {
 		Center = Vector3.new(0, 0, -50), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(52, 50, 72),
 		NeonColor = Color3.fromRGB(176, 96, 255),
-		Weights = { 100, 35, 6, 0.6, 0.05 }, SpawnCap = 10,
+		Weights = { 100, 32, 5, 1.5, 0.3 }, SpawnCap = 10,
 	},
 	{
 		Name = "Magenta Techfields", Price = 5000,
 		Center = Vector3.new(0, 0, -118), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(66, 46, 86),
 		NeonColor = Color3.fromRGB(238, 92, 224),
-		Weights = { 55, 60, 22, 3.5, 0.3 }, SpawnCap = 9,
+		Weights = { 55, 60, 22, 4, 0.6 }, SpawnCap = 9,
 	},
 	{
 		Name = "Quantum Core", Price = 75000,
 		Center = Vector3.new(0, 0, -186), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(40, 52, 88),
 		NeonColor = Color3.fromRGB(92, 200, 255),
-		Weights = { 25, 55, 45, 14, 2.2 }, SpawnCap = 8,
+		Weights = { 25, 55, 45, 14, 2.5 }, SpawnCap = 8,
 	},
 }
 Config.SpawnInterval = 2.4 -- seconds between spawn attempts per zone

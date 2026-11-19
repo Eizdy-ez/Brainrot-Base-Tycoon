@@ -375,6 +375,13 @@ function SpawnManager.Start(c)
 						local nx, nz = pos.X + dx / dist * step, pos.Z + dz / dist * step
 						local bobY = st.GroundY + math.abs(math.sin(t * 3.2 + st.Phase)) * 0.35
 						body.CFrame = CFrame.lookAt(Vector3.new(nx, bobY, nz), Vector3.new(nx + dx, bobY, nz + dz))
+							* CFrame.Angles(math.sin(t * 3.2 + st.Phase) * 0.03, 0, math.sin(t * 7 + st.Phase) * 0.05)
+						-- the walk cycle: swinging arms, bobbling head
+						st.PoseAcc = (st.PoseAcc or 0) + dt
+						if st.PoseAcc > 0.05 then
+							st.PoseAcc = 0
+							ctx.Factory.Pose(model, "Walk", t)
+						end
 					end
 				end
 			end
