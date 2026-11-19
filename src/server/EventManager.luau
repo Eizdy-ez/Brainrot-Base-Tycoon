@@ -58,7 +58,7 @@ end
 local function runGoldRain()
 	ctx.GoldRainActive = true
 	ctx.World.GoldRainEmitter.Rate = 240
-	bannerAll("🌧️ GOLD RAIN!", "Golden brainrots are " .. Config.Events.GoldRainMutationBoost .. "x more likely — go catch one!", Color3.fromRGB(255, 200, 60), 5)
+	bannerAll("🌧️ GOLD RAIN!", "Golden brainrots are " .. Config.Events.GoldRainMutationBoost .. "x more likely — go buy one before it sinks!", Color3.fromRGB(255, 200, 60), 5)
 	soundAll("Magic", 1)
 	musicAll("Gold")
 	pushAll()

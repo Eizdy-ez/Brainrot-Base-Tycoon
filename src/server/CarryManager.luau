@@ -1,7 +1,7 @@
--- CarryManager.luau — the hands of the game: catching wild brainrots by
--- touch, the lucky-catch evolution roll, carrying them stacked on the head,
--- placing them on base pads, stealing from unlocked bases, and dropping
--- everything when a wave (or death) knocks you over.
+-- CarryManager.luau — the hands of the game: buying wild brainrots via
+-- their portal prompts, the lucky-buy evolution roll, carrying them
+-- stacked on the head, placing them on base pads, stealing from unlocked
+-- bases, and dropping everything when a wave (or death) knocks you over.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -33,7 +33,11 @@ local function nag(player, text)
 	end
 end
 
-function CarryManager.TryPickup(player, model)
+-- Buy a wandering wild brainrot (fired by its ProximityPrompt). The
+-- server validates everything: the wild must still be wandering (its
+-- portal has not reclaimed it), the carry must have room, and the cash
+-- must cover the price shown on the prompt.
+function CarryManager.TryBuy(player, model)
 	if not model or not model.Parent then
 		return
 	end
@@ -49,14 +53,26 @@ function CarryManager.TryPickup(player, model)
 		nag(player, "🎒 Carry full! Take it home or buy +CARRY at your base")
 		return
 	end
+	local price = model:GetAttribute("Price") or 0
+	if profile.Cash < price then
+		nag(player, "💸 Not enough cash! That brainrot costs $" .. price)
+		return
+	end
+	-- claim it from the spawn manager: stops the wander, removes the
+	-- prompt and the portal, and fails if it already started sinking
+	if not ctx.Spawn.ClaimWild(model) then
+		return
+	end
+	if not ctx.Data.SpendCash(player, price) then
+		return -- cannot happen (checked above), but never carry for free
+	end
 	model:SetAttribute("Kind", "Carried")
-	ctx.Spawn.Unregister(model)
 
 	local name = model:GetAttribute("BrainrotName")
 	local mutation = model:GetAttribute("Mutation")
 	local rarity = model:GetAttribute("Rarity")
 
-	-- Lucky catch: the brainrot evolves +1 rarity on the spot.
+	-- Lucky buy: the brainrot evolves +1 rarity on the spot.
 	if math.random() < profile.LuckLvl * Config.Upgrades.Luck.PerLevel and rarity < 5 then
 		local candidates = {}
 		for _, def in ipairs(Config.Brainrots) do
@@ -71,7 +87,7 @@ function CarryManager.TryPickup(player, model)
 		model:SetAttribute("Kind", "Carried")
 		model.PrimaryPart.CFrame = cf
 		name, rarity = newDef.Name, rarity + 1
-		ctx.Remotes.Event:FireClient(player, "Notify", "🍀 LUCKY CATCH! It evolved into " .. newDef.Name .. "!", "Success")
+		ctx.Remotes.Event:FireClient(player, "Notify", "🍀 LUCKY BUY! It evolved into " .. newDef.Name .. "!", "Success")
 		ctx.Remotes.Event:FireClient(player, "PlaySound", "Magic", 1)
 	end
 
@@ -80,11 +96,12 @@ function CarryManager.TryPickup(player, model)
 	carried[#carried + 1] = model
 	Carried[player] = carried
 
-	profile.Stats.BestCatch = math.max(profile.Stats.BestCatch, rarity)
+	profile.Stats.BrainrotsBought += 1
+	profile.Stats.BestBuy = math.max(profile.Stats.BestBuy, rarity)
 	if profile.TutorialStep == 0 then
 		profile.TutorialStep = 1
 	end
-	ctx.Remotes.Event:FireClient(player, "PlaySound", "Pickup", 1)
+	ctx.Remotes.Event:FireClient(player, "PlaySound", "Buy", 1)
 	ctx.Quests.Refresh(player)
 	ctx.Data.PushState(player, ctx)
 end
@@ -103,7 +120,7 @@ function CarryManager.TryPlace(player, base)
 		return
 	end
 	if #profile.Displayed >= profile.Pads then
-		nag(player, "🟦 All pads full! Buy +2 PADS or fuse brainrots to free space")
+		nag(player, "🟦 All pads full! Buy +2 PADS at your base to place more")
 		return
 	end
 	local model = table.remove(carried)
@@ -176,7 +193,7 @@ function CarryManager.DropAll(player, position)
 			local body = model.PrimaryPart
 			body.CanCollide = true
 			local dropPos = position + Vector3.new((math.random() - 0.5) * 7, 0, (math.random() - 0.5) * 7)
-			body.CFrame = CFrame.new(dropPos.X, 0.35 + body.Size.Y / 2, dropPos.Z)
+			body.CFrame = CFrame.new(dropPos.X, 0.35 + body.Size.Y / 2 + (model:GetAttribute("Hover") or 0), dropPos.Z)
 			model.Parent = ctx.World.WildFolder
 			ctx.Spawn.RegisterWild(model, ctx.Spawn.ZoneFromPosition(dropPos))
 		end

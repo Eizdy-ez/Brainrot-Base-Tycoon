@@ -1,5 +1,5 @@
 -- ShopManager.luau — everything that costs cash: the four upgrade tracks,
--- zone unlocks at the gates, the fusion machine, and rebirth (with its aura).
+-- zone unlocks at the gates, and rebirth (with its aura).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -132,55 +132,6 @@ function ShopManager.UnlockZone(player, zi)
 	profile.Zones[zi] = true
 	notify(player, "🌈 " .. zone.Name .. " UNLOCKED! Richer brainrots await!", "Success")
 	sound(player, "Celebrate", 1)
-	ctx.Quests.Refresh(player)
-	ctx.Data.PushState(player, ctx)
-end
-
-function ShopManager.Fuse(player, name, mutation)
-	local profile = ctx.Data.Profiles[player]
-	local base = ctx.Bases.ByPlayer[player]
-	if not profile or not base then
-		return
-	end
-	local def = Config.BrainrotByName[name]
-	if not def then
-		return
-	end
-	if def.Rarity >= 5 then
-		notify(player, "⭐ Mythic brainrots can't fuse any further!", "Error")
-		sound(player, "Error", 1)
-		return
-	end
-	-- collect the indices of matching displayed brainrots
-	local indices = {}
-	for i, entry in ipairs(profile.Displayed) do
-		if entry.Name == name and entry.Mutation == mutation then
-			indices[#indices + 1] = i
-		end
-	end
-	if #indices < Config.FusionRequired then
-		notify(player, "🧬 You need " .. Config.FusionRequired .. "x " .. Config.DisplayName(def, mutation) .. " to fuse!", "Error")
-		sound(player, "Error", 1)
-		return
-	end
-	-- remove three (from the back so indices stay valid)
-	for n = 1, Config.FusionRequired do
-		table.remove(profile.Displayed, indices[#indices])
-		table.remove(indices)
-	end
-	local candidates = {}
-	for _, candidate in ipairs(Config.Brainrots) do
-		if candidate.Rarity == def.Rarity + 1 then
-			candidates[#candidates + 1] = candidate
-		end
-	end
-	local result = candidates[math.random(#candidates)]
-	profile.Displayed[#profile.Displayed + 1] = { Name = result.Name, Mutation = mutation }
-	profile.Stats.Fused += 1
-	ctx.Bases.RenderDisplayed(base)
-	notify(player, "🧬 FUSION! Your brainrots became a " .. Config.DisplayName(result, mutation) .. "!", "Success")
-	sound(player, "Fusion", 1)
-	sound(player, "Magic", 1.2)
 	ctx.Quests.Refresh(player)
 	ctx.Data.PushState(player, ctx)
 end

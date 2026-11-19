@@ -43,7 +43,7 @@ function DataManager.DefaultProfile()
 		QuestBase = 0,
 		TutorialStep = 0,
 		TutorialDone = false,
-		Stats = { Placed = 0, Bought = 0, Fused = 0, WavesSurvived = 0, BestCatch = 0 },
+		Stats = { Placed = 0, Bought = 0, BrainrotsBought = 0, WavesSurvived = 0, BestBuy = 0 },
 	}
 end
 

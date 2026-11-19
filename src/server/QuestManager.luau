@@ -15,8 +15,8 @@ local function baselineFor(profile, kind)
 		return profile.Stats.Placed
 	elseif kind == "Buy" then
 		return profile.Stats.Bought
-	elseif kind == "Fuse" then
-		return profile.Stats.Fused
+	elseif kind == "BuyBrainrot" then
+		return profile.Stats.BrainrotsBought
 	elseif kind == "SurviveWave" then
 		return profile.Stats.WavesSurvived
 	end
@@ -36,14 +36,14 @@ function QuestManager.GetProgress(player)
 		return profile.Stats.Placed - profile.QuestBase
 	elseif def.Kind == "Buy" then
 		return profile.Stats.Bought - profile.QuestBase
-	elseif def.Kind == "Fuse" then
-		return profile.Stats.Fused - profile.QuestBase
+	elseif def.Kind == "BuyBrainrot" then
+		return profile.Stats.BrainrotsBought - profile.QuestBase
 	elseif def.Kind == "SurviveWave" then
 		return profile.Stats.WavesSurvived - profile.QuestBase
 	elseif def.Kind == "Earn" then
 		return math.floor(profile.TotalEarned)
-	elseif def.Kind == "CatchRarity" then
-		return profile.Stats.BestCatch
+	elseif def.Kind == "BuyRarity" then
+		return profile.Stats.BestBuy
 	elseif def.Kind == "UnlockZone" then
 		local highest = 1
 		for zi, unlocked in ipairs(profile.Zones) do

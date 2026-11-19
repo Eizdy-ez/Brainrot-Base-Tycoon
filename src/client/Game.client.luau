@@ -1,7 +1,7 @@
 -- Brainrot Base Tycoon — client bootstrap.
 -- Builds the ScreenGui, starts every UI module, routes the server's events
 -- (state snapshots, toasts, sounds, banners, effects) and sends player
--- actions (shop buys, fusion, rebirth, dash) back. All rendering of game
+-- actions (shop buys, rebirth, dash) back. All rendering of game
 -- state comes from the server's snapshots; this side only presents.
 
 local Players = game:GetService("Players")
@@ -18,7 +18,6 @@ local AudioClient = require(script.Parent:WaitForChild("AudioClient"))
 local Hud = require(script.Parent:WaitForChild("Hud"))
 local QuestUI = require(script.Parent:WaitForChild("QuestUI"))
 local ShopUI = require(script.Parent:WaitForChild("ShopUI"))
-local FusionUI = require(script.Parent:WaitForChild("FusionUI"))
 local Tutorial = require(script.Parent:WaitForChild("Tutorial"))
 local Effects = require(script.Parent:WaitForChild("Effects"))
 
@@ -34,7 +33,6 @@ local ctx = {
 	Hud = Hud,
 	QuestUI = QuestUI,
 	ShopUI = ShopUI,
-	FusionUI = FusionUI,
 	Tutorial = Tutorial,
 	Effects = Effects,
 	State = nil,
@@ -50,7 +48,6 @@ AudioClient.Start(ctx)
 Hud.Start(ctx, gui)
 QuestUI.Start(ctx, gui)
 ShopUI.Start(ctx, gui)
-FusionUI.Start(ctx, gui)
 Tutorial.Start(ctx, gui)
 Effects.Start(ctx)
 
@@ -62,7 +59,6 @@ local function applyState(state)
 	Hud.Update(state)
 	QuestUI.Update(state)
 	ShopUI.Update(state)
-	FusionUI.Update(state)
 	Tutorial.Update(state)
 	Effects.GateCheck(state)
 end
@@ -83,8 +79,6 @@ eventRemote.OnClientEvent:Connect(function(eventName, a, b, c, d)
 	elseif eventName == "OpenPanel" then
 		if a == "Shop" then
 			ShopUI.Open()
-		elseif a == "Fusion" then
-			FusionUI.Open()
 		end
 	elseif eventName == "EventMusic" then
 		AudioClient.PlayBgm(a)

@@ -1,6 +1,6 @@
 -- Config.luau — every tunable number and definition for Brainrot Base Tycoon.
 -- Shared by server and client: rarities, the brainrot roster, zones, upgrades,
--- fusion, quests, rebirth, events and the (verified) audio table.
+-- quests, rebirth, events and the (verified) audio table.
 
 local Config = {}
 
@@ -15,7 +15,7 @@ Config.Rarities = {
 	{ Name = "Mythic",    Color = Color3.fromRGB(255, 62, 128),  IncomeMult = 1200 },
 }
 
--- Mutations rolled when a brainrot spawns (or granted by fusion).
+-- Mutations rolled when a brainrot spawns.
 Config.Mutations = {
 	None   = { Name = "",       IncomeMult = 1, Chance = 0 },
 	Shiny  = { Name = "Shiny",  IncomeMult = 2, Chance = 0.04 },
@@ -23,30 +23,38 @@ Config.Mutations = {
 }
 
 --====================================================================--
--- Brainrot roster. Accessory is a list of builder keys the factory knows.
+-- Brainrot roster — an ORIGINAL cast, invented for this game: every
+-- name and design is new (no borrowed roster). Accessory is a list of
+-- builder keys the factory knows. Plan is the body plan the factory
+-- builds: Humanoid | Quadruped | Flyer | Blob — each plan reads as a
+-- different silhouette. NoHead means an accessory draws the head (with
+-- its own eyes). Hover is how high a flyer cruises above the ground.
 -- Income is cash per second while the brainrot sits on a display pad.
 --====================================================================--
 Config.Brainrots = {
 	-- Common
-	{ Name = "Noobini Pizzanini",      Rarity = 1, Income = 1,  Body = Color3.fromRGB(245, 205, 50),  Accent = Color3.fromRGB(255, 120, 60),  Accessory = { "Pizza" } },
-	{ Name = "Pipi Kiwi",              Rarity = 1, Income = 2,  Body = Color3.fromRGB(122, 84, 50),   Accent = Color3.fromRGB(140, 200, 90),  Accessory = { "Beak", "Leaf" } },
-	{ Name = "Trippi Troppi",          Rarity = 1, Income = 2,  Body = Color3.fromRGB(255, 138, 76),  Accent = Color3.fromRGB(255, 90, 90),   Accessory = { "TailFin" } },
+	{ Name = "Toastino",        Rarity = 1, Income = 1,  Body = Color3.fromRGB(196, 178, 160), Accent = Color3.fromRGB(255, 140, 40),  Accessory = { "ToasterHead" }, NoHead = true },
+	{ Name = "Splashound",      Rarity = 1, Income = 2,  Body = Color3.fromRGB(96, 178, 240),  Accent = Color3.fromRGB(240, 248, 255), Accessory = { "DogEars", "Snout", "WagTail" }, Plan = "Quadruped" },
+	{ Name = "Moppina",         Rarity = 1, Income = 2,  Body = Color3.fromRGB(226, 208, 170), Accent = Color3.fromRGB(70, 200, 190),  Accessory = { "MopHair" } },
+	{ Name = "Socktopus",       Rarity = 1, Income = 3,  Body = Color3.fromRGB(178, 156, 230), Accent = Color3.fromRGB(255, 170, 200), Accessory = { "Tentacles" }, Plan = "Blob" },
 	-- Rare
-	{ Name = "Tung Tung Tung Sahur",   Rarity = 2, Income = 8,  Body = Color3.fromRGB(150, 104, 58),  Accent = Color3.fromRGB(110, 74, 36),   Accessory = { "LogBody", "Bat" } },
-	{ Name = "Lirili Larila",          Rarity = 2, Income = 10, Body = Color3.fromRGB(158, 164, 176), Accent = Color3.fromRGB(74, 168, 84),   Accessory = { "Trunk", "Cactus" } },
-	{ Name = "Brr Brr Patapim",        Rarity = 2, Income = 12, Body = Color3.fromRGB(112, 78, 46),   Accent = Color3.fromRGB(70, 160, 70),   Accessory = { "TreeTop" } },
+	{ Name = "Lampadina",       Rarity = 2, Income = 8,  Body = Color3.fromRGB(64, 150, 150),  Accent = Color3.fromRGB(255, 214, 110), Accessory = { "LampHead" }, NoHead = true },
+	{ Name = "Biscotto Bot",    Rarity = 2, Income = 10, Body = Color3.fromRGB(216, 164, 94),  Accent = Color3.fromRGB(96, 54, 30),    Accessory = { "CookieDisc", "ChocChips", "Antenna" } },
+	{ Name = "Pumpkowl",        Rarity = 2, Income = 12, Body = Color3.fromRGB(240, 132, 40),  Accent = Color3.fromRGB(110, 76, 40),   Accessory = { "PumpkinRibs", "Wings", "EarTufts" }, Plan = "Blob" },
+	{ Name = "Raviolibot",      Rarity = 2, Income = 14, Body = Color3.fromRGB(246, 228, 178), Accent = Color3.fromRGB(170, 178, 190), Accessory = { "ForkAntenna", "CrimpEdge" } },
 	-- Epic
-	{ Name = "Cappuccino Assassino",   Rarity = 3, Income = 45, Body = Color3.fromRGB(240, 234, 222), Accent = Color3.fromRGB(120, 78, 40),   Accessory = { "CupHead", "Swords" } },
-	{ Name = "Ballerina Cappuccina",   Rarity = 3, Income = 55, Body = Color3.fromRGB(250, 240, 246), Accent = Color3.fromRGB(255, 150, 200), Accessory = { "CupHead", "Tutu" } },
-	{ Name = "Chimpanzini Bananini",   Rarity = 3, Income = 65, Body = Color3.fromRGB(246, 224, 84),  Accent = Color3.fromRGB(120, 84, 50),   Accessory = { "Banana" } },
+	{ Name = "Disco Fungo",     Rarity = 3, Income = 45, Body = Color3.fromRGB(200, 60, 80),   Accent = Color3.fromRGB(210, 214, 224), Accessory = { "DiscoBall", "Headphones" } },
+	{ Name = "Capitano Teapot", Rarity = 3, Income = 55, Body = Color3.fromRGB(52, 66, 110),   Accent = Color3.fromRGB(255, 196, 66),  Accessory = { "TeapotHead", "PirateHat" }, NoHead = true },
+	{ Name = "Astro Jelly",     Rarity = 3, Income = 65, Body = Color3.fromRGB(255, 158, 205), Accent = Color3.fromRGB(96, 220, 255),  Accessory = { "JellyDome", "JellyTentacles", "Backpack" }, Plan = "Flyer", Hover = 1.4 },
+	{ Name = "Vroom Broom",     Rarity = 3, Income = 75, Body = Color3.fromRGB(150, 104, 58),  Accent = Color3.fromRGB(246, 214, 110), Accessory = { "BroomStick", "Bristles", "Wheels", "Shades" }, Plan = "Flyer", Hover = 1.1 },
 	-- Legendary
-	{ Name = "Tralalero Tralala",      Rarity = 4, Income = 300, Body = Color3.fromRGB(70, 150, 230), Accent = Color3.fromRGB(240, 240, 240), Accessory = { "SharkFin", "Sneakers" } },
-	{ Name = "Bombardiro Crocodilo",   Rarity = 4, Income = 380, Body = Color3.fromRGB(86, 168, 84),  Accent = Color3.fromRGB(90, 90, 96),    Accessory = { "Wings", "Propeller" } },
-	{ Name = "Bombombini Gusini",      Rarity = 4, Income = 450, Body = Color3.fromRGB(244, 244, 248), Accent = Color3.fromRGB(255, 170, 40),  Accessory = { "Wings", "Cap" } },
+	{ Name = "Drake Frutto",    Rarity = 4, Income = 300, Body = Color3.fromRGB(240, 84, 140),  Accent = Color3.fromRGB(84, 200, 110),  Accessory = { "DragonWings", "Horns", "DragonTail" }, Plan = "Flyer", Hover = 0.9 },
+	{ Name = "Volpina Neon",    Rarity = 4, Income = 380, Body = Color3.fromRGB(245, 130, 50),  Accent = Color3.fromRGB(96, 235, 255),  Accessory = { "FoxEars", "FoxMuzzle", "TripleTail" }, Plan = "Quadruped" },
+	{ Name = "Tornadino",       Rarity = 4, Income = 450, Body = Color3.fromRGB(140, 152, 175), Accent = Color3.fromRGB(216, 178, 110), Accessory = { "TornadoBody", "CowboyHat" }, BodySize = Vector3.new(1.5, 2.3, 1.5) },
 	-- Mythic
-	{ Name = "La Vaca Saturno Saturnita", Rarity = 5, Income = 2000, Body = Color3.fromRGB(246, 246, 250), Accent = Color3.fromRGB(60, 60, 70), Accessory = { "SaturnRing", "Stars" } },
-	{ Name = "Giraffa Celeste",        Rarity = 5, Income = 2600, Body = Color3.fromRGB(250, 214, 120), Accent = Color3.fromRGB(150, 100, 50), Accessory = { "LongNeck", "Stars" } },
-	{ Name = "Frigo Camelo",           Rarity = 5, Income = 3200, Body = Color3.fromRGB(205, 228, 240), Accent = Color3.fromRGB(230, 180, 90), Accessory = { "FridgeBody", "Cap" } },
+	{ Name = "Waffleone",       Rarity = 5, Income = 2000, Body = Color3.fromRGB(232, 176, 92),  Accent = Color3.fromRGB(150, 84, 30),   Accessory = { "WaffleGrid", "SyrupTop", "Crown" } },
+	{ Name = "Balena Void",     Rarity = 5, Income = 2600, Body = Color3.fromRGB(52, 48, 120),   Accent = Color3.fromRGB(178, 120, 255), Accessory = { "WhaleTail", "Stars", "MoonFin" }, Plan = "Flyer", Hover = 1.6 },
+	{ Name = "Gnocco d'Oro",    Rarity = 5, Income = 3200, Body = Color3.fromRGB(255, 196, 64),  Accent = Color3.fromRGB(52, 220, 130),  Accessory = { "GemCore", "Crown" }, Plan = "Blob" },
 }
 
 Config.BrainrotByName = {}
@@ -69,30 +77,52 @@ function Config.DisplayName(def, mutation)
 end
 
 --====================================================================--
+-- Buying wild brainrots (the Steal-a-Brainrot loop): a wild brainrot's
+-- price is its income scaled by PricePerIncome and its mutation
+-- multiplier, so a Golden costs (and earns) 5x a plain one.
+--====================================================================--
+Config.PricePerIncome = 15
+function Config.BuyPrice(def, mutation)
+	local m = Config.Mutations[mutation or "None"]
+	local mult = m and m.IncomeMult or 1
+	return math.max(5, math.floor(def.Income * Config.PricePerIncome * mult + 0.5))
+end
+
+--====================================================================--
 -- Zones. Fields are rectangles on the island; gates sit on the path.
--- Weights are the rarity roll inside that zone.
+-- Weights are the rarity roll inside that zone. GroundColor/NeonColor
+-- drive the futuristic retheme: dark metal panels, neon accents that
+-- get richer per tier.
 --====================================================================--
 Config.Zones = {
 	{
-		Name = "Brainrot Meadows", Price = 0,
+		Name = "Neon Outskirts", Price = 0,
 		Center = Vector3.new(0, 0, -64), Size = Vector2.new(120, 56),
-		GroundColor = Color3.fromRGB(106, 196, 92),
-		Weights = { 100, 35, 6, 0.6, 0.05 }, SpawnCap = 14,
+		GroundColor = Color3.fromRGB(52, 50, 72),
+		NeonColor = Color3.fromRGB(176, 96, 255),
+		Weights = { 100, 35, 6, 0.6, 0.05 }, SpawnCap = 10,
 	},
 	{
-		Name = "Neon Lagoon", Price = 5000,
+		Name = "Magenta Techfields", Price = 5000,
 		Center = Vector3.new(0, 0, -148), Size = Vector2.new(120, 56),
-		GroundColor = Color3.fromRGB(64, 178, 196),
-		Weights = { 55, 60, 22, 3.5, 0.3 }, SpawnCap = 12,
+		GroundColor = Color3.fromRGB(66, 46, 86),
+		NeonColor = Color3.fromRGB(238, 92, 224),
+		Weights = { 55, 60, 22, 3.5, 0.3 }, SpawnCap = 9,
 	},
 	{
-		Name = "Golden Volcano", Price = 75000,
+		Name = "Quantum Core", Price = 75000,
 		Center = Vector3.new(0, 0, -232), Size = Vector2.new(120, 56),
-		GroundColor = Color3.fromRGB(214, 148, 62),
-		Weights = { 25, 55, 45, 14, 2.2 }, SpawnCap = 10,
+		GroundColor = Color3.fromRGB(40, 52, 88),
+		NeonColor = Color3.fromRGB(92, 200, 255),
+		Weights = { 25, 55, 45, 14, 2.2 }, SpawnCap = 8,
 	},
 }
 Config.SpawnInterval = 2.4 -- seconds between spawn attempts per zone
+
+-- Portal spawns: a wild brainrot rises out of a ground portal, wanders
+-- for a while, then sinks back if nobody buys it.
+Config.PortalRiseTime = 0.9   -- seconds to rise out of / sink into a portal
+Config.WildWanderTime = { 9, 12 } -- seconds a portal wild wanders before sinking
 
 --====================================================================--
 -- Upgrades (bought on base pads or in the shop UI)
@@ -110,17 +140,11 @@ Config.Upgrades = {
 		Start = 0, Max = 2, Costs = { 400, 3500 },
 		Label = "Carry +1 Brainrot", BaseCapacity = 1,
 	},
-	Luck = { -- on catch, chance the brainrot jumps +1 rarity
+	Luck = { -- on buy, chance the brainrot jumps +1 rarity
 		Start = 0, Max = 5, Costs = { 300, 1000, 3000, 8000, 20000 },
-		Label = "+6% Lucky Catch", PerLevel = 0.06,
+		Label = "+6% Lucky Buy", PerLevel = 0.06,
 	},
 }
-
---====================================================================--
--- Fusion: 3 identical brainrots (same name + mutation) fuse into one
--- random brainrot of the next rarity, keeping the mutation.
---====================================================================--
-Config.FusionRequired = 3
 
 --====================================================================--
 -- Rebirth: resets cash/upgrades/zones/displayed; +50% income each time.
@@ -138,17 +162,17 @@ end
 
 --====================================================================--
 -- Quests: a chain, one active at a time. Kind drives which game event
--- advances it: Place, Earn (lifetime cash), Buy, CatchRarity, Fuse,
--- UnlockZone, SurviveWave, Rebirth.
+-- advances it: Place, Earn (lifetime cash), Buy (upgrades), BuyBrainrot,
+-- BuyRarity (best rarity bought), UnlockZone, SurviveWave, Rebirth.
 --====================================================================--
 Config.Quests = {
 	{ Text = "Place a Brainrot on a pad at your base",        Kind = "Place",       Target = 1,      Reward = 100 },
 	{ Text = "Place 5 Brainrots on your pads",                Kind = "Place",       Target = 5,      Reward = 300 },
 	{ Text = "Earn $1,000 in total",                          Kind = "Earn",        Target = 1000,   Reward = 500 },
 	{ Text = "Buy 2 upgrades",                                Kind = "Buy",         Target = 2,      Reward = 750 },
-	{ Text = "Catch a Rare (or better) Brainrot",             Kind = "CatchRarity", Target = 2,      Reward = 1200 },
-	{ Text = "Fuse 3 Brainrots into a higher rarity",         Kind = "Fuse",        Target = 1,      Reward = 2500 },
-	{ Text = "Unlock the Neon Lagoon",                        Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
+	{ Text = "Buy a Rare (or better) Brainrot",               Kind = "BuyRarity",   Target = 2,      Reward = 1200 },
+	{ Text = "Buy 4 Brainrots from the portals",              Kind = "BuyBrainrot", Target = 4,      Reward = 2500 },
+	{ Text = "Unlock the Magenta Techfields",                 Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
 	{ Text = "Survive a Brainrot Wave (keep your carry!)",    Kind = "SurviveWave", Target = 1,      Reward = 6000 },
 	{ Text = "Earn $100,000 in total",                        Kind = "Earn",        Target = 100000, Reward = 15000 },
 	{ Text = "Rebirth for the first time",                    Kind = "Rebirth",     Target = 1,      Reward = 25000 },
@@ -166,7 +190,9 @@ Config.Events = {
 Config.StartCash = 150
 Config.BaseLockTime = 45      -- seconds a base stays locked
 Config.BaseLockCooldown = 90  -- seconds before it can lock again
-Config.DataStoreName = "BrainrotBaseTycoon_v1"
+-- v2: the roster was fully renamed, so v1 saves (which store brainrots
+-- by name) cannot carry over; everyone starts fresh on the new cast.
+Config.DataStoreName = "BrainrotBaseTycoon_v2"
 Config.AutosaveSeconds = 60
 
 --====================================================================--
@@ -189,7 +215,6 @@ Config.Audio = {
 	Alarm       = "rbxassetid://104560954",  -- "Simple Beep" — Roblox (repeated pattern)
 	Dash        = "rbxassetid://129425637",  -- "woosh" — Roblox
 	WaveHit     = "rbxassetid://160248505",  -- "Bang 4" — Stickmasterluke (public domain)
-	Fusion      = "rbxassetid://49459858",   -- "incant" — Roblox
 	Magic       = "rbxassetid://106805906",  -- "FROG_MAGIC" — Roblox
 	Celebrate   = "rbxassetid://160248368",  -- "Firework Fountain" — Stickmasterluke (public domain)
 	Fanfare     = "rbxasset://sounds/victory.wav", -- legacy built-in fanfare

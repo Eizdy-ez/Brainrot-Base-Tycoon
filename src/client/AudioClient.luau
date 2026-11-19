@@ -20,7 +20,7 @@ local bgm = nil
 local currentTrack = nil
 local BGM_VOLUME = 0.32
 local SFX_VOLUME = {
-	Collect = 0.7, Buy = 0.7, Fanfare = 0.85, Celebrate = 0.7, Fusion = 0.7,
+	Collect = 0.7, Buy = 0.7, Fanfare = 0.85, Celebrate = 0.7,
 	Magic = 0.6, Alarm = 0.65, WaveHit = 0.8, Bandit = 0.6, Pickup = 0.55,
 	Place = 0.6, Dash = 0.55, Click = 0.45, Error = 0.5, Thud = 0.6,
 }

@@ -1,5 +1,5 @@
 -- Hud.luau — always-on interface: the money bar (cash, income/s, pending),
--- carry pips, the menu buttons (Shop / Fusion / Quest / Sound), toast
+-- carry pips, the menu buttons (Shop / Quest / Sound), toast
 -- notifications, and the big centre banner used by events and rebirths.
 
 local TweenService = game:GetService("TweenService")
@@ -80,7 +80,7 @@ function Hud.Start(c, gui)
 	-- menu buttons (right side)
 	local buttons = Instance.new("Frame")
 	buttons.Name = "MenuButtons"
-	buttons.Size = UDim2.new(0, 118, 0, 190)
+	buttons.Size = UDim2.new(0, 118, 0, 142)
 	buttons.Position = UDim2.new(1, -128, 0, 74)
 	buttons.BackgroundTransparency = 1
 	buttons.Parent = gui
@@ -88,16 +88,11 @@ function Hud.Start(c, gui)
 	layout.Padding = UDim.new(0, 8)
 	layout.Parent = buttons
 	local shopBtn = UI.Button(buttons, "🛒 SHOP", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 150, 60))
-	local fusionBtn = UI.Button(buttons, "🧬 FUSION", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(172, 84, 255))
 	local questBtn = UI.Button(buttons, "📜 QUEST", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(64, 160, 255))
 	local soundBtn = UI.Button(buttons, "🔊 SOUND", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(90, 96, 120))
 	shopBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)
 		ctx.ShopUI.Toggle()
-	end)
-	fusionBtn.MouseButton1Click:Connect(function()
-		ctx.Audio.PlaySfx("Click", 1)
-		ctx.FusionUI.Toggle()
 	end)
 	questBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)

@@ -1,6 +1,6 @@
 -- BaseManager.luau — owns the eight base plots: assignment, rendering the
 -- displayed brainrots from profile data, pad touch routing (collect, lock,
--- fusion, rebirth, upgrades), the base lock, and the locked-zone guard.
+-- rebirth, upgrades), the base lock, and the locked-zone guard.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -169,13 +169,6 @@ local function wireBase(base)
 		local player = playerFromHit(hit)
 		if player and player == base.Owner and not debounced(base.LockPad, player, 0.8) then
 			BaseManager.ToggleLock(base)
-		end
-	end)
-	base.FusionPad.Touched:Connect(function(hit)
-		local player = playerFromHit(hit)
-		if player and player == base.Owner and not debounced(base.FusionPad, player, 0.8) then
-			ctx.Remotes.Event:FireClient(player, "OpenPanel", "Fusion")
-			ctx.Remotes.Event:FireClient(player, "PlaySound", "Click", 1)
 		end
 	end)
 	base.RebirthPad.Touched:Connect(function(hit)

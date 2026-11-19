@@ -98,8 +98,6 @@ end
 actionRemote.OnServerEvent:Connect(function(player, action, a, b)
 	if action == "BuyUpgrade" and type(a) == "string" then
 		ShopManager.BuyUpgrade(player, a)
-	elseif action == "Fuse" and type(a) == "string" then
-		ShopManager.Fuse(player, a, type(b) == "string" and b or "None")
 	elseif action == "Rebirth" then
 		ShopManager.Rebirth(player)
 	elseif action == "UnlockZone" and type(a) == "number" and (a == 2 or a == 3) then
@@ -143,7 +141,7 @@ local function onPlayerAdded(player)
 	task.delay(1.5, function()
 		DataManager.PushState(player, ctx)
 		if not profile.TutorialDone then
-			eventRemote:FireClient(player, "Banner", "🧠 Welcome to Brainrot Base Tycoon!", "Touch a brainrot in the fields to catch it!", Color3.fromRGB(120, 220, 255), 5)
+			eventRemote:FireClient(player, "Banner", "🧠 Welcome to Brainrot Base Tycoon!", "Brainrots rise from portals in the fields — buy one before it sinks away!", Color3.fromRGB(120, 220, 255), 5)
 		else
 			eventRemote:FireClient(player, "Notify", "👋 Welcome back, tycoon! Your base is just as you left it.", "Info")
 		end
