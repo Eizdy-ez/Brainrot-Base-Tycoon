@@ -102,6 +102,8 @@ actionRemote.OnServerEvent:Connect(function(player, action, a, b)
 		ShopManager.Fuse(player, a, type(b) == "string" and b or "None")
 	elseif action == "Rebirth" then
 		ShopManager.Rebirth(player)
+	elseif action == "UnlockZone" and type(a) == "number" and (a == 2 or a == 3) then
+		ShopManager.UnlockZone(player, a)
 	elseif action == "Dash" then
 		doDash(player)
 	elseif action == "RequestState" then
