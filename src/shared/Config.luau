@@ -99,11 +99,11 @@ end
 -- Zones. Fields are rectangles on the island; gates sit on the path.
 -- Weights are the rarity roll inside that zone. EVERY rarity has a
 -- nonzero weight in EVERY zone: no character is locked behind a paid
--- gate — anything in the roster can rise out of a portal in the free
--- first field and be bought there (higher fields just roll the top
--- rarities far more often). GroundColor/NeonColor drive the bright
--- classic look: green meadow, pink candy grass, golden volcano sand,
--- each with a cheerful accent colour for its portals and fences.
+-- gate — anything in the roster can appear in the free first field
+-- and be bought there (higher fields just roll the top rarities far
+-- more often). GroundColor/NeonColor (the zone's accent) drive the
+-- bright classic look: green meadow, pink candy grass, golden volcano
+-- sand, each with a cheerful accent colour for its fences and trims.
 --====================================================================--
 Config.Zones = {
 	{
@@ -130,11 +130,9 @@ Config.Zones = {
 }
 Config.SpawnInterval = 2.4 -- seconds between spawn attempts per zone
 
--- Portal spawns: a wild brainrot rises out of a ground portal, wanders
--- for a while, then sinks back if nobody buys it.
-Config.PortalRiseTime = 0.9   -- seconds to rise out of / sink into a portal
-Config.PortalAnimTime = 0.35  -- seconds for the portal circle to open / close
-Config.WildWanderTime = { 9, 12 } -- seconds a portal wild wanders before sinking
+-- Wild spawns: a wild brainrot appears standing in its field and
+-- wanders for a while, then wanders off if nobody buys it.
+Config.WildWanderTime = { 9, 12 } -- seconds a wild wanders before it leaves
 
 --====================================================================--
 -- Upgrades (bought on base pads or in the shop UI)
@@ -183,9 +181,9 @@ Config.Quests = {
 	{ Text = "Earn $1,000 in total",                          Kind = "Earn",        Target = 1000,   Reward = 500 },
 	{ Text = "Buy 2 upgrades",                                Kind = "Buy",         Target = 2,      Reward = 750 },
 	{ Text = "Buy a Rare (or better) Brainrot",               Kind = "BuyRarity",   Target = 2,      Reward = 1200 },
-	{ Text = "Buy 4 Brainrots from the portals",              Kind = "BuyBrainrot", Target = 4,      Reward = 2500 },
+	{ Text = "Buy 4 Brainrots from the fields",               Kind = "BuyBrainrot", Target = 4,      Reward = 2500 },
 	{ Text = "Unlock the Candy Fields",                      Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
-	{ Text = "Buy 12 Brainrots from the portals",             Kind = "BuyBrainrot", Target = 12,     Reward = 6000 },
+	{ Text = "Buy 12 Brainrots from the fields",              Kind = "BuyBrainrot", Target = 12,     Reward = 6000 },
 	{ Text = "Earn $100,000 in total",                        Kind = "Earn",        Target = 100000, Reward = 15000 },
 	{ Text = "Rebirth for the first time",                    Kind = "Rebirth",     Target = 1,      Reward = 25000 },
 }

@@ -13,8 +13,8 @@ local hintFrame, hintLabel, arrow, arrowLabel
 local targetPos = nil
 
 local STEP_TEXT = {
-	[0] = "🌀 Brainrots rise from PORTALS in the fields — walk up and BUY one before it sinks away!",
-	[1] = "🏠 Carry it home! Step on a glowing pad at YOUR base to place it.",
+	[0] = "🧠 Brainrots wander the fields — walk up and BUY one before it wanders away!",
+	[1] = "🏠 Carry it home! Step on a display pad at YOUR base to place it.",
 	[2] = "💰 Your brainrot earns cash — step on the GREEN pad to collect!",
 	[3] = "🛒 Buy an upgrade: step on a GOLD pad at your base, or open the SHOP!",
 }

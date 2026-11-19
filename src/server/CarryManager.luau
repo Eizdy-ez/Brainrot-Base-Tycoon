@@ -1,5 +1,5 @@
 -- CarryManager.luau — the hands of the game: buying wild brainrots via
--- their portal prompts, the lucky-buy evolution roll, carrying them
+-- their Buy prompts, the lucky-buy evolution roll, carrying them
 -- stacked on the head, placing them on base pads, stealing from unlocked
 -- bases, and dropping everything when death knocks you over.
 
@@ -34,9 +34,9 @@ local function nag(player, text)
 end
 
 -- Buy a wandering wild brainrot (fired by its ProximityPrompt). The
--- server validates everything: the wild must still be wandering (its
--- portal has not reclaimed it), the carry must have room, and the cash
--- must cover the price shown on the prompt.
+-- server validates everything: the wild must still be wandering the
+-- field, the carry must have room, and the cash must cover the price
+-- shown on the prompt.
 function CarryManager.TryBuy(player, model)
 	if not model or not model.Parent then
 		return
@@ -59,7 +59,7 @@ function CarryManager.TryBuy(player, model)
 		return
 	end
 	-- claim it from the spawn manager: stops the wander, removes the
-	-- prompt and the portal, and fails if it already started sinking
+	-- prompt, and fails if it was already claimed or has wandered off
 	if not ctx.Spawn.ClaimWild(model) then
 		return
 	end
@@ -193,7 +193,7 @@ function CarryManager.DropAll(player, position)
 			local body = model.PrimaryPart
 			body.CanCollide = true
 			local dropPos = position + Vector3.new((math.random() - 0.5) * 7, 0, (math.random() - 0.5) * 7)
-			body.CFrame = CFrame.new(dropPos.X, 0.35 + body.Size.Y / 2 + (model:GetAttribute("Hover") or 0), dropPos.Z)
+			body.CFrame = CFrame.new(dropPos.X, 0.35 + (model:GetAttribute("FootDrop") or (body.Size.Y / 2 + 0.35)) + (model:GetAttribute("Hover") or 0), dropPos.Z)
 			model.Parent = ctx.World.WildFolder
 			ctx.Spawn.RegisterWild(model, ctx.Spawn.ZoneFromPosition(dropPos))
 		end
@@ -229,7 +229,7 @@ function CarryManager.Start(c)
 			end)
 		end
 	end
-	-- carried brainrots ride stacked above the head, bobbing
+	-- carried brainrots ride stacked steadily above the head (no bob)
 	local poseAcc = 0
 	RunService.Heartbeat:Connect(function(dt)
 		local t = os.clock()
@@ -245,8 +245,7 @@ function CarryManager.Start(c)
 				for i, model in ipairs(carried) do
 					local body = model.PrimaryPart
 					if body then
-						local bob = math.sin(t * 3 + i * 1.4) * 0.14
-						local target = head.CFrame * CFrame.new(0, 1.6 + (i - 1) * 2.05 + bob, 0)
+						local target = head.CFrame * CFrame.new(0, 1.6 + (i - 1) * 2.05, 0)
 						body.CFrame = body.CFrame:Lerp(target, 0.45)
 						if doPose then
 							ctx.Factory.Pose(model, "Idle", t)

@@ -67,8 +67,10 @@ function BaseManager.RenderDisplayed(base)
 			local model = ctx.Factory.Build(def, entry.Mutation)
 			model:SetAttribute("Kind", "Displayed")
 			local anchor = base.Pads[i].Anchor
-			-- feet rest on the pad: half the torso plus the leg drop
-			model.PrimaryPart.CFrame = CFrame.new(anchor.X, anchor.Y + model.PrimaryPart.Size.Y / 2 + 0.3, anchor.Z)
+			-- feet rest on the pad: the factory's FootDrop below the
+			-- body centre, with a hair of sink so they sit ON the pad
+			local footDrop = model:GetAttribute("FootDrop") or (model.PrimaryPart.Size.Y / 2 + 0.35)
+			model.PrimaryPart.CFrame = CFrame.new(anchor.X, anchor.Y + footDrop - 0.05, anchor.Z)
 			model.Parent = game.Workspace
 			base.Pads[i].Model = model
 			-- stealing: another player touching it takes it (unless locked)
@@ -258,7 +260,8 @@ function BaseManager.Start(c)
 		end
 	end)
 
-	-- displayed brainrots slowly spin and bob
+	-- displayed brainrots slowly spin in place (vertical bob kept to a
+	-- breath — 0.05 studs — so nothing reads as bouncing)
 	task.spawn(function()
 		while true do
 			task.wait(0.12)
@@ -267,7 +270,8 @@ function BaseManager.Start(c)
 				for i, pad in ipairs(base.Pads) do
 					if pad.Model and pad.Model.PrimaryPart then
 						local a = pad.Anchor
-						pad.Model.PrimaryPart.CFrame = CFrame.new(a.X, a.Y + pad.Model.PrimaryPart.Size.Y / 2 + 0.3 + math.sin(t * 1.6 + i * 1.3) * 0.16, a.Z)
+						local footDrop = pad.Model:GetAttribute("FootDrop") or (pad.Model.PrimaryPart.Size.Y / 2 + 0.35)
+						pad.Model.PrimaryPart.CFrame = CFrame.new(a.X, a.Y + footDrop - 0.05 + math.sin(t * 1.6 + i * 1.3) * 0.05, a.Z)
 							* CFrame.Angles(0, t * 0.7 + i, 0)
 						ctx.Factory.Pose(pad.Model, "Idle", t)
 					end

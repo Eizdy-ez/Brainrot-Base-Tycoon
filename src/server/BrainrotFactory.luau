@@ -12,12 +12,13 @@
 -- Pumpkowl's pumpkin head with huge owl eyes, Satelerror's TV-screen
 -- face with a glitch mouth, Waffleone's syrup, cape and sceptre…).
 --
--- CHIBI pass: the sheets draw the cast with heads at 40-50% of total
--- height and faces that fill the head. Head parts are therefore
--- authored in head units and multiplied by HS (below) on top of the
--- rarity scale — sizes AND offsets — so every head lands at 40-50% of
--- its model's height and every eye is ~0.9 studs tall at Common scale,
--- readable from a normal gameplay camera (20+ studs).
+-- HUMANOID pass (Round 7): after the chibi experiment the cast shifts
+-- back toward humanoid proportions — heads at ~32-38% of total height
+-- on a taller upright torso with real legs — while the faces stay BIG:
+-- head parts are authored in head units and multiplied by HS (below)
+-- on top of the rarity scale — sizes AND offsets — so every eye stays
+-- >= 0.8 studs tall at Common scale, readable from a normal gameplay
+-- camera (20+ studs).
 --
 -- Animation is pure code: the head rides a Motor6D "neck" and the arms
 -- hang on Motor6D shoulders, and Factory.Pose swings them — a gentle
@@ -74,7 +75,7 @@ local PROPS = {
 	["Lampadina"] = { Suit = Color3.fromRGB(198, 118, 54) },  -- amber cardigan
 	["Satelerror"] = { Suit = Color3.fromRGB(52, 56, 68), TVHead = true }, -- charcoal robot
 	["Biscotto Bot"] = { BotArms = true },                    -- grey robot limbs, cookie hands
-	["Pumpkowl"] = { Body = Vector3.new(2.4, 2.1, 2.0) },     -- plump pumpkin body
+	["Pumpkowl"] = { Body = Vector3.new(2.4, 2.3, 2.0) },     -- plump pumpkin body
 	["Splashound"] = { NoMouth = true },                      -- the snout carries the mouth
 	["Volpina Neon"] = { NoMouth = true },                    -- the muzzle covers it
 }
@@ -105,7 +106,7 @@ function Factory.Pose(model, kind, t)
 		local s = math.sin(t * 7 + ph)
 		st.ShoulderL.Transform = CFrame.Angles(s * 0.6, 0, 0.1)
 		st.ShoulderR.Transform = CFrame.Angles(-s * 0.6, 0, -0.1)
-		st.Neck.Transform = CFrame.Angles(math.sin(t * 14 + ph) * 0.04, math.sin(t * 3.5 + ph) * 0.1, s * 0.05)
+		st.Neck.Transform = CFrame.Angles(math.sin(t * 7 + ph) * 0.02, math.sin(t * 3.5 + ph) * 0.06, s * 0.03)
 	else -- Idle: slow sway, breathing arms, a head that tilts and looks around
 		st.ShoulderL.Transform = CFrame.Angles(math.sin(t * 1.8 + ph) * 0.09, 0, 0.12 + math.sin(t * 1.3 + ph) * 0.03)
 		st.ShoulderR.Transform = CFrame.Angles(math.sin(t * 1.8 + ph + 1) * 0.09, 0, -0.12 - math.sin(t * 1.3 + ph) * 0.03)
@@ -115,7 +116,7 @@ end
 
 --====================================================================--
 -- The standard expressive face, drawn BIG on the head mount's front:
--- round black eyes ~0.68 head-units tall (×HS×scale ≈ 0.94 studs at
+-- round black eyes ~0.74 head-units tall (×HS×scale ≈ 0.86 studs at
 -- Common) with a white glint, brows, and a mouth built from little
 -- bars (a smile arc, or a smirk for the smug ones). On the round
 -- (Ball) heads each feature sits on the sphere's own surface; on
@@ -135,7 +136,7 @@ local function buildFace(def, hadd, A)
 	local mouthZ = A.RoundHead and (faceSurfZ(0, -0.38) - 0.05) or (fz - 0.02)
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.55, 0.68, 0.22), CFrame.new(side * 0.38, 0.2, eyeZ), INK))
+		ball(hadd("Eye" .. tag, Vector3.new(0.58, 0.74, 0.22), CFrame.new(side * 0.38, 0.2, eyeZ), INK))
 		ball(hadd("Glint" .. tag, Vector3.new(0.2, 0.24, 0.1), CFrame.new(side * 0.38 - 0.08, 0.33, eyeZ - 0.1), WHITE, Enum.Material.Neon))
 		local tilt = 0
 		if style == "Smug" or style == "Brave" then
@@ -178,11 +179,11 @@ function AccessoryBuilders.ToasterHead(model, body, def, add, hadd, A)
 	-- the sheet: a chrome toaster whose CREAM front panel carries the
 	-- face — big round eyes, little brows, a tiny smile — with two
 	-- toast slices popping out of the top and the lever on its side
-	hadd("Toaster", Vector3.new(2.0, 1.25, 1.35), CFrame.new(0, 0.12, 0), Color3.fromRGB(196, 200, 208), Enum.Material.Metal)
-	hadd("FacePanel", Vector3.new(1.66, 1.0, 0.12), CFrame.new(0, 0.1, -0.68), Color3.fromRGB(246, 238, 220))
+	hadd("Toaster", Vector3.new(2.0, 1.35, 1.35), CFrame.new(0, 0.12, 0), Color3.fromRGB(196, 200, 208), Enum.Material.Metal)
+	hadd("FacePanel", Vector3.new(1.66, 1.08, 0.12), CFrame.new(0, 0.1, -0.68), Color3.fromRGB(246, 238, 220))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.66, 0.2), CFrame.new(side * 0.42, 0.22, -0.78), INK))
+		ball(hadd("Eye" .. tag, Vector3.new(0.54, 0.74, 0.2), CFrame.new(side * 0.42, 0.22, -0.78), INK))
 		ball(hadd("Glint" .. tag, Vector3.new(0.18, 0.2, 0.08), CFrame.new(side * 0.42 - 0.08, 0.33, -0.86), WHITE, Enum.Material.Neon))
 		hadd("Brow" .. tag, Vector3.new(0.48, 0.12, 0.08), CFrame.new(side * 0.42, 0.54, -0.76) * CFrame.Angles(0, 0, side * 0.12), INK)
 	end
@@ -223,7 +224,7 @@ function AccessoryBuilders.LampHead(model, body, def, add, hadd, A)
 	-- the face glows through the shade's front
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.66, 0.18), CFrame.new(side * 0.4, 0.42, -1.04), INK))
+		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.74, 0.18), CFrame.new(side * 0.4, 0.42, -1.04), INK))
 		hadd("Brow" .. tag, Vector3.new(0.46, 0.12, 0.08), CFrame.new(side * 0.4, 0.56, -1.03) * CFrame.Angles(0, 0, side * 0.12), INK)
 	end
 	hadd("SmileM", Vector3.new(0.4, 0.12, 0.08), CFrame.new(0, 0.02, -1.12), INK)
@@ -245,7 +246,7 @@ function AccessoryBuilders.TeapotHead(model, body, def, add, hadd, A)
 	ball(hadd("LidKnob", Vector3.new(0.4, 0.4, 0.4), CFrame.new(0, 0.95, 0), def.Accent, Enum.Material.Metal))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.66, 0.18), CFrame.new(side * 0.38, 0.42, -0.78), INK))
+		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.74, 0.18), CFrame.new(side * 0.38, 0.42, -0.78), INK))
 		ball(hadd("Glint" .. tag, Vector3.new(0.16, 0.2, 0.08), CFrame.new(side * 0.38 - 0.07, 0.53, -0.85), WHITE, Enum.Material.Neon))
 	end
 	hadd("SmileM", Vector3.new(0.38, 0.12, 0.08), CFrame.new(0, -0.1, -0.8), INK)
@@ -271,7 +272,7 @@ function AccessoryBuilders.CookieHead(model, body, def, add, hadd, A)
 	end
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.68, 0.2), CFrame.new(side * 0.36, 0.02, -0.3), def.Accent))
+		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.74, 0.2), CFrame.new(side * 0.36, 0.02, -0.3), def.Accent))
 		ball(hadd("Glint" .. tag, Vector3.new(0.17, 0.21, 0.08), CFrame.new(side * 0.36 - 0.07, 0.14, -0.38), WHITE, Enum.Material.Neon))
 	end
 	hadd("SmileM", Vector3.new(0.42, 0.13, 0.08), CFrame.new(0, -0.42, -0.29), def.Accent)
@@ -308,7 +309,7 @@ function AccessoryBuilders.TVHead(model, body, def, add, hadd, A)
 	hadd("Screen", Vector3.new(1.5, 1.06, 0.1), CFrame.new(0, 0.12, -0.66), Color3.fromRGB(10, 14, 22))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.68, 0.68, 0.14), CFrame.new(side * 0.36, 0.28, -0.73), def.Accent, Enum.Material.Neon))
+		ball(hadd("Eye" .. tag, Vector3.new(0.74, 0.74, 0.14), CFrame.new(side * 0.36, 0.28, -0.73), def.Accent, Enum.Material.Neon))
 		local can = hadd("EarCan" .. tag, Vector3.new(0.55, 0.18, 0.55), CFrame.new(side * 0.95, 0.12, 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(70, 74, 86), Enum.Material.Metal)
 		can.Shape = Enum.PartType.Cylinder
 	end
@@ -717,16 +718,22 @@ end
 -- the character's signature accessory set on top.
 --====================================================================--
 local HEAD_Y = 1.55 -- body-local height of the head centre (bandit only)
-local HS = 1.4 -- chibi head factor: head parts scale by scale * HS
+local HS = 1.18 -- head factor: head parts scale by scale * HS (humanoid
+-- pass: heads land at ~32-38% of total height, faces stay big)
 
 function Factory.Build(def, mutation)
 	local model = Instance.new("Model")
 	model.Name = def.Name
+	-- identity attributes: the buy/carry/place chain reads these back
+	-- (CarryManager), so every built model must carry them
+	model:SetAttribute("BrainrotName", def.Name)
+	model:SetAttribute("Mutation", mutation or "None")
+	model:SetAttribute("Rarity", def.Rarity)
 
 	local scale = 0.9 + def.Rarity * 0.09
 	local props = PROPS[def.Name] or {}
-	-- chibi torso: shorter and a touch wider/deeper than the old plan
-	local bodySize = def.BodySize or props.Body or Vector3.new(2.2, 1.9, 1.7)
+	-- humanoid torso: tall and upright, narrower than the chibi plan
+	local bodySize = def.BodySize or props.Body or Vector3.new(2.0, 2.5, 1.5)
 	local torsoColor = props.Suit or def.Body
 
 	local body = part(model, "Body", bodySize * scale, CFrame.new(0, 0, 0), torsoColor)
@@ -785,10 +792,25 @@ function Factory.Build(def, mutation)
 		buildFace(def, hadd, A)
 	end
 
-	-- feet planted under the (shorter) chibi torso at every scale
-	local footY = -(A.HalfH + 0.14)
-	add("FootL", Vector3.new(0.62, 0.42, 0.9), CFrame.new(-0.55, footY, -0.08), BLACK)
-	add("FootR", Vector3.new(0.62, 0.42, 0.9), CFrame.new(0.55, footY, -0.08), BLACK)
+	-- real legs under the torso, feet planted at every scale: the legs
+	-- bridge from the torso's hem down to the shoes, so the silhouette
+	-- reads legs-then-feet instead of a floating box. (add() scales
+	-- sizes by `scale` but not offsets, so the leg length is divided
+	-- back out to land exact.)
+	local footY = -(A.HalfH + 0.75)
+	local legTop = -A.HalfH + 0.12
+	local legBottom = footY + 0.1 * scale
+	local legColor = torsoColor:Lerp(BLACK, 0.3)
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		add("Leg" .. tag, Vector3.new(0.56, (legTop - legBottom) / scale, 0.62),
+			CFrame.new(side * 0.5, (legTop + legBottom) / 2, -0.05), legColor)
+	end
+	add("FootL", Vector3.new(0.62, 0.42, 0.9), CFrame.new(-0.5, footY, -0.08), BLACK)
+	add("FootR", Vector3.new(0.62, 0.42, 0.9), CFrame.new(0.5, footY, -0.08), BLACK)
+	-- how far the feet reach below the body centre: the movers use it
+	-- to rest the model exactly on the ground / on a pad
+	model:SetAttribute("FootDrop", A.HalfH + 0.75 + 0.21 * scale)
 
 	-- arms on shoulder Motor6Ds (robot arms for the bot, cookie hands)
 	local armColor = props.BotArms and Color3.fromRGB(120, 124, 132) or torsoColor
@@ -848,7 +870,8 @@ function Factory.Build(def, mutation)
 	label.TextScaled = true
 	label.TextColor3 = WHITE
 	label.TextStrokeTransparency = 0.35
-	label.Text = ""
+	label.Text = Config.DisplayName(def, mutation) .. "\n"
+		.. Config.Rarities[def.Rarity].Name .. " • $" .. Config.BrainrotIncome(def, mutation) .. "/s"
 	label.Parent = gui
 
 	-- sparkles for shiny/golden mutations and the top rarities
