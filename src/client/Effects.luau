@@ -72,8 +72,13 @@ function Effects.CollectBurst(amount, worldPos)
 	end)
 end
 
--- Barriers are shared parts; hiding them is a per-client visual only.
+local ownBaseSlot = 0
+
+-- Barriers and base doors are shared parts; adjusting them is per-client
+-- only. Zone barriers you unlocked fade out, and your own base's gate
+-- door never blocks you (it stays solid for everyone else while locked).
 function Effects.GateCheck(state)
+	ownBaseSlot = state.BaseSlot or 0
 	local worldRoot = Workspace:FindFirstChild("BrainrotWorld")
 	if not worldRoot then
 		return
@@ -85,9 +90,31 @@ function Effects.GateCheck(state)
 			barrier.Transparency = state.Zones[zi] and 1 or 0.45
 		end
 	end
+	Effects.PassOwnDoor()
+end
+
+function Effects.PassOwnDoor()
+	if ownBaseSlot <= 0 then
+		return
+	end
+	local worldRoot = Workspace:FindFirstChild("BrainrotWorld")
+	local baseModel = worldRoot and worldRoot:FindFirstChild("Base" .. ownBaseSlot)
+	local door = baseModel and baseModel:FindFirstChild("GateDoor")
+	if door then
+		door.CanCollide = false
+	end
 end
 
 function Effects.Start(ctx)
+	-- the server re-solidifies a locked door for everyone; keep clearing
+	-- it locally for the owner so a replication update can never trap
+	-- them inside (or outside) their own base
+	task.spawn(function()
+		while true do
+			task.wait(0.4)
+			Effects.PassOwnDoor()
+		end
+	end)
 	RunService.RenderStepped:Connect(function(dt)
 		if shakePower > 0.003 then
 			local camera = Workspace.CurrentCamera

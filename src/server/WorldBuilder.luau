@@ -111,36 +111,129 @@ local function buildBase(parent, slot, centerX, centerZ)
 		return Vector3.new(centerX + dir * ox, 0, centerZ + oz)
 	end
 
-	-- plot floor + trim
-	mkPart(model, "Floor", Vector3.new(46, 1, 46), CFrame.new(centerX, 0.5, centerZ), Color3.fromRGB(228, 224, 216))
-	mkPart(model, "Trim", Vector3.new(47, 0.5, 47), CFrame.new(centerX, 0.25, centerZ), color)
-	-- corner posts + side rails
-	for _, sx in ipairs({ -22, 22 }) do
-		for _, sz in ipairs({ -22, 22 }) do
-			mkPart(model, "Post", Vector3.new(1.2, 3.4, 1.2), CFrame.new(centerX + sx, 2.2, centerZ + sz), color)
-		end
-	end
-	mkPart(model, "RailBack", Vector3.new(1, 1.1, 45), CFrame.new(L(22, 0).X, 2, centerZ), color)
-	mkPart(model, "RailL", Vector3.new(45, 1.1, 1), CFrame.new(centerX, 2, centerZ - 22), color)
-	mkPart(model, "RailR", Vector3.new(45, 1.1, 1), CFrame.new(centerX, 2, centerZ + 22), color)
+	-- Futuristic shell (concept B): a dark glass floor over a metal slab,
+	-- ringed by full walls on all four sides — dark metal panels below,
+	-- glass above — crowned by one slim, dim purple neon line. The front
+	-- wall (facing the island centre) holds the gate; its door is driven
+	-- by the base lock (see BaseManager.UpdateGate).
+	local METAL_DARK = Color3.fromRGB(36, 38, 52)
+	local GLASS_TINT = Color3.fromRGB(148, 163, 205)
+	local NEON_PURPLE = Color3.fromRGB(176, 96, 255)
+	local NEON_MAGENTA = Color3.fromRGB(238, 92, 224)
+
+	mkPart(model, "Trim", Vector3.new(47.5, 0.6, 47.5), CFrame.new(centerX, 0.2, centerZ), METAL_DARK, Enum.Material.Metal)
+	local floor = mkPart(model, "Floor", Vector3.new(46, 0.5, 46), CFrame.new(centerX, 0.75, centerZ), Color3.fromRGB(24, 22, 38), Enum.Material.Glass)
+	floor.Transparency = 0.12
 
 	local base = {
 		Slot = slot, Center = Vector3.new(centerX, 1, centerZ), Model = model,
 		Pending = 0, Owner = nil, Locked = false, LockUntil = 0, LockReadyAt = 0,
-		Pads = {}, UpgradePads = {},
+		Pads = {}, UpgradePads = {}, LightStrips = {},
 	}
 
-	-- 12 display pedestals: 4 columns x 3 rows on the far half
-	local padIndex = 0
-	for row = 0, 2 do
-		for col = 0, 3 do
-			padIndex += 1
-			local pos = L(5 + col * 4.4, -13 + row * 13)
-			local pedestal = mkPart(model, "Pad" .. padIndex, Vector3.new(3.8, 0.9, 3.8), CFrame.new(pos.X, 1.45, pos.Z), Color3.fromRGB(196, 200, 210), Enum.Material.SmoothPlastic)
-			local top = mkPart(model, "PadTop" .. padIndex, Vector3.new(3.9, 0.22, 3.9), CFrame.new(pos.X, 1.95, pos.Z), color, Enum.Material.Neon)
-			top.CanCollide = false
-			base.Pads[padIndex] = { Part = top, Pedestal = pedestal, Anchor = Vector3.new(pos.X, 2.05, pos.Z), Model = nil }
+	-- running-light grid set into the floor: neon strips in a 5x5 lattice.
+	-- BaseManager pulses them in sequence so a wave of light travels
+	-- across the glass instead of the grid sitting static.
+	local gridOffsets = { -18.4, -9.2, 0, 9.2, 18.4 }
+	for i, go in ipairs(gridOffsets) do
+		local across = mkPart(model, "LightStripX" .. i, Vector3.new(45, 0.14, 0.42), CFrame.new(centerX, 1.06, centerZ + go), i % 2 == 0 and NEON_MAGENTA or NEON_PURPLE, Enum.Material.Neon)
+		across.CanCollide = false
+		across.CanQuery = false
+		across.CanTouch = false
+		base.LightStrips[#base.LightStrips + 1] = { Part = across, Phase = i }
+		local alongPos = L(go, 0)
+		local along = mkPart(model, "LightStripZ" .. i, Vector3.new(0.42, 0.14, 45), CFrame.new(alongPos.X, 1.06, centerZ), i % 2 == 0 and NEON_PURPLE or NEON_MAGENTA, Enum.Material.Neon)
+		along.CanCollide = false
+		along.CanQuery = false
+		along.CanTouch = false
+		base.LightStrips[#base.LightStrips + 1] = { Part = along, Phase = i + 0.5 }
+	end
+
+	-- one straight wall run in local plot coords: metal band (y 1..4.2),
+	-- glass band (up to y 9.4), top rail, and the thin neon crown line.
+	-- glassBottom > 4.2 + noLower builds a lintel (no metal band) for the
+	-- stretch over the gate opening.
+	local WALL_T = 0.8
+	local function wallRun(ox1, oz1, ox2, oz2, glassBottom, noLower)
+		local mid = L((ox1 + ox2) / 2, (oz1 + oz2) / 2)
+		local len = math.abs(ox2 - ox1) + math.abs(oz2 - oz1) + WALL_T
+		local alongZ = ox1 == ox2
+		local function seg(name, h, cy, thick, segColor, material, transparency)
+			local size = alongZ and Vector3.new(thick, h, len) or Vector3.new(len, h, thick)
+			local p = mkPart(model, name, size, CFrame.new(mid.X, cy, mid.Z), segColor, material)
+			if transparency then
+				p.Transparency = transparency
+			end
+			return p
 		end
+		if not noLower then
+			seg("WallMetal", 3.2, 2.6, WALL_T, METAL_DARK, Enum.Material.Metal)
+		end
+		local gb = glassBottom or 4.2
+		seg("WallGlass", 9.4 - gb, (9.4 + gb) / 2, WALL_T, GLASS_TINT, Enum.Material.Glass, 0.35)
+		seg("WallTopRail", 0.55, 9.68, WALL_T + 0.35, METAL_DARK, Enum.Material.Metal)
+		local neon = seg("WallNeon", 0.3, 10.1, 0.34, NEON_PURPLE, Enum.Material.Neon)
+		neon.CanCollide = false
+		neon.Transparency = 0.25
+	end
+
+	-- back + side walls run unbroken; the front wall leaves a 9-wide gate
+	-- opening at its centre, bridged by a glass lintel.
+	wallRun(22.6, -23, 22.6, 23)
+	wallRun(-23, -22.6, 23, -22.6)
+	wallRun(-23, 22.6, 23, 22.6)
+	wallRun(-22.6, -23, -22.6, -4.5)
+	wallRun(-22.6, 4.5, -22.6, 23)
+	wallRun(-22.6, -4.5, -22.6, 4.5, 7.2, true)
+
+	-- slim frame posts: corners, wall midpoints and the gate jambs
+	local postAt = { -22.6, -11.3, 11.3, 22.6 }
+	for _, oz in ipairs(postAt) do
+		local p = L(-22.6, oz)
+		mkPart(model, "FramePost", Vector3.new(1.1, 8.4, 1.1), CFrame.new(p.X, 5.2, p.Z), METAL_DARK, Enum.Material.Metal)
+		local q = L(22.6, oz)
+		mkPart(model, "FramePost", Vector3.new(1.1, 8.4, 1.1), CFrame.new(q.X, 5.2, q.Z), METAL_DARK, Enum.Material.Metal)
+	end
+	for _, ox in ipairs({ -22.6, 0, 22.6 }) do
+		for _, oz in ipairs({ -22.6, 22.6 }) do
+			local p = L(ox, oz)
+			mkPart(model, "FramePost", Vector3.new(1.1, 8.4, 1.1), CFrame.new(p.X, 5.2, p.Z), METAL_DARK, Enum.Material.Metal)
+		end
+	end
+	for _, oz in ipairs({ -4.9, 4.9 }) do
+		local p = L(-22.6, oz)
+		mkPart(model, "GateJamb", Vector3.new(1.1, 6.2, 1.1), CFrame.new(p.X, 4.1, p.Z), METAL_DARK, Enum.Material.Metal)
+	end
+
+	-- the gate door itself: tinted glass that turns solid while the base
+	-- is locked (BaseManager.UpdateGate drives CanCollide/Transparency;
+	-- it starts open). The owner always passes — Effects clears the
+	-- door's collision on the owner's own client only.
+	local gatePos = L(-22.6, 0)
+	local door = mkPart(model, "GateDoor", Vector3.new(0.55, 6.2, 9), CFrame.new(gatePos.X, 4.1, gatePos.Z), Color3.fromRGB(96, 74, 158), Enum.Material.Glass)
+	door.Transparency = 0.85
+	door.CanCollide = false
+	base.GateDoor = door
+
+	-- 12 display pedestals hugging the walls, as in the concept: six
+	-- along the back wall, three along each side wall, leaving the
+	-- glowing floor open in the middle.
+	local padSpots = {}
+	for i = 0, 5 do
+		padSpots[#padSpots + 1] = { 18.6, -15 + i * 6 }
+	end
+	for i = 0, 2 do
+		padSpots[#padSpots + 1] = { 2 + i * 6, -18.6 }
+	end
+	for i = 0, 2 do
+		padSpots[#padSpots + 1] = { 2 + i * 6, 18.6 }
+	end
+	for padIndex, spot in ipairs(padSpots) do
+		local pos = L(spot[1], spot[2])
+		local pedestal = mkPart(model, "Pad" .. padIndex, Vector3.new(3.8, 0.9, 3.8), CFrame.new(pos.X, 1.45, pos.Z), Color3.fromRGB(52, 54, 72), Enum.Material.Metal)
+		local top = mkPart(model, "PadTop" .. padIndex, Vector3.new(3.9, 0.22, 3.9), CFrame.new(pos.X, 1.95, pos.Z), color, Enum.Material.Neon)
+		top.CanCollide = false
+		base.Pads[padIndex] = { Part = top, Pedestal = pedestal, Anchor = Vector3.new(pos.X, 2.05, pos.Z), Model = nil }
 	end
 
 	-- collect pad (glowing cylinder the owner stands on to claim cash)
@@ -180,18 +273,18 @@ local function buildBase(parent, slot, centerX, centerZ)
 		base.UpgradePads[udef.Key] = { Part = btn, Label = label }
 	end
 
-	-- owner sign facing the island centre
-	local signPos = L(-21, 0)
-	local _, signTitle = board(model, "Sign", Vector3.new(0.8, 5.5, 13),
-		CFrame.lookAt(Vector3.new(signPos.X, 5.5, signPos.Z), Vector3.new(0, 5.5, centerZ)),
+	-- owner sign as a header above the gate, facing the island centre
+	local signPos = L(-22.6, 0)
+	local _, signTitle = board(model, "Sign", Vector3.new(0.8, 3.6, 13),
+		CFrame.lookAt(Vector3.new(signPos.X, 11.6, signPos.Z), Vector3.new(0, 11.6, centerZ)),
 		"EMPTY BASE", nil, color, Color3.fromRGB(40, 42, 56))
 	base.SignLabel = signTitle
 
-	-- two lamps
+	-- two lamps just inside the front corners
 	for _, lz in ipairs({ -18, 18 }) do
 		local pos = L(-20, lz)
 		mkPart(model, "LampPost", Vector3.new(0.5, 5.5, 0.5), CFrame.new(pos.X, 3.7, pos.Z), Color3.fromRGB(60, 60, 70))
-		local bulb = mkPart(model, "LampBulb", Vector3.new(1.1, 1.1, 1.1), CFrame.new(pos.X, 6.8, pos.Z), Color3.fromRGB(255, 240, 180), Enum.Material.Neon)
+		local bulb = mkPart(model, "LampBulb", Vector3.new(1.1, 1.1, 1.1), CFrame.new(pos.X, 6.8, pos.Z), Color3.fromRGB(226, 196, 255), Enum.Material.Neon)
 		bulb.Shape = Enum.PartType.Ball
 		bulb.CanCollide = false
 	end

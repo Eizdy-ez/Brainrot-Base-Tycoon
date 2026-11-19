@@ -203,7 +203,9 @@ local function runBandit()
 	end
 	local candidates = {}
 	for _, base in ipairs(ctx.Bases.List) do
-		if base.Owner and ctx.Data.Profiles[base.Owner] and #ctx.Data.Profiles[base.Owner].Displayed >= 1 then
+		-- a locked base has its gate shut, so the bandit cannot get in:
+		-- he only ever targets bases whose gate stands open
+		if base.Owner and not base.Locked and ctx.Data.Profiles[base.Owner] and #ctx.Data.Profiles[base.Owner].Displayed >= 1 then
 			candidates[#candidates + 1] = base
 		end
 	end
@@ -264,7 +266,9 @@ local function runBandit()
 		-- sneak to the base, grab a brainrot, run for the plaza exit
 		if walkTo(frontPos, 10, 20) and not state.dead then
 			local profile = ctx.Data.Profiles[victim]
-			if profile and #profile.Displayed > 0 then
+			-- if the owner hit the lock while he was sneaking in, he
+			-- gives up the grab and slips back out empty-handed
+			if profile and #profile.Displayed > 0 and not base.Locked then
 				local padIndex = math.random(#profile.Displayed)
 				local pad = base.Pads[padIndex]
 				if pad and walkTo(Vector3.new(pad.Anchor.X, 0, pad.Anchor.Z), 9, 12) and not state.dead then

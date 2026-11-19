@@ -114,6 +114,7 @@ function BaseManager.Assign(player)
 			base.Owner = player
 			base.Pending = 0
 			base.Locked = false
+			BaseManager.UpdateGate(base)
 			BaseManager.ByPlayer[player] = base
 			base.SignLabel.Text = "🏠 " .. player.DisplayName:upper() .. "'S BASE"
 			BaseManager.RenderDisplayed(base)
@@ -138,6 +139,7 @@ function BaseManager.Release(player)
 	base.Owner = nil
 	base.Pending = 0
 	base.Locked = false
+	BaseManager.UpdateGate(base)
 	base.SignLabel.Text = "EMPTY BASE"
 	BaseManager.ByPlayer[player] = nil
 	BaseManager.UpdateShopLabels(base)
@@ -193,6 +195,24 @@ local function wireBase(base)
 	end
 end
 
+-- The gate door mirrors the lock: while the base is locked the door is
+-- solid and clearly shut for everyone else; otherwise it ghosts open and
+-- anyone may walk in (stealing rules unchanged). The owner always passes
+-- their own door — Effects clears its collision on the owner's client.
+function BaseManager.UpdateGate(base)
+	local door = base.GateDoor
+	if not door then
+		return
+	end
+	if base.Locked then
+		door.CanCollide = true
+		door.Transparency = 0.3
+	else
+		door.CanCollide = false
+		door.Transparency = 0.85
+	end
+end
+
 function BaseManager.ToggleLock(base)
 	local now = os.clock()
 	local player = base.Owner
@@ -212,6 +232,9 @@ function BaseManager.ToggleLock(base)
 	base.LockUntil = now + Config.BaseLockTime
 	base.LockReadyAt = now + Config.BaseLockCooldown
 	base.LockLabel.Text = "🔒 LOCKED!"
+	BaseManager.UpdateGate(base)
+	-- push a snapshot so the owner's client re-clears its own door pass
+	ctx.Data.PushState(player, ctx)
 	ctx.Remotes.Event:FireClient(player, "Notify", "🔒 Your base is locked for " .. Config.BaseLockTime .. "s — brainrots are safe!", "Success")
 	ctx.Remotes.Event:FireClient(player, "PlaySound", "Buy", 1.1)
 end
@@ -221,7 +244,25 @@ function BaseManager.Start(c)
 	BaseManager.List = ctx.World.Bases
 	for _, base in ipairs(BaseManager.List) do
 		wireBase(base)
+		BaseManager.UpdateGate(base)
 	end
+
+	-- running floor lights: a brightness wave travels strip to strip
+	-- across each base's glass floor (cheap: transparency only, ~8 Hz)
+	task.spawn(function()
+		while true do
+			task.wait(0.12)
+			local t = os.clock()
+			for _, base in ipairs(BaseManager.List) do
+				if base.LightStrips then
+					for _, strip in ipairs(base.LightStrips) do
+						local wave = 0.5 + 0.5 * math.sin(t * 2.6 - strip.Phase * 0.9 + base.Slot * 1.7)
+						strip.Part.Transparency = 0.66 - 0.6 * wave
+					end
+				end
+			end
+		end
+	end)
 
 	-- displayed brainrots slowly spin and bob
 	task.spawn(function()
@@ -249,6 +290,7 @@ function BaseManager.Start(c)
 				if base.Locked and now >= base.LockUntil then
 					base.Locked = false
 					base.LockLabel.Text = "🔓 LOCK BASE"
+					BaseManager.UpdateGate(base)
 					if base.Owner then
 						ctx.Remotes.Event:FireClient(base.Owner, "Notify", "🔓 Your base lock expired!", "Error")
 					end
