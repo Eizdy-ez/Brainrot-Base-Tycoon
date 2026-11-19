@@ -100,31 +100,31 @@ end
 -- Weights are the rarity roll inside that zone. EVERY rarity has a
 -- nonzero weight in EVERY zone: no character is locked behind a paid
 -- gate — anything in the roster can rise out of a portal in the free
--- first district and be bought there (higher districts just roll the
--- top rarities far more often). GroundColor/NeonColor drive the
--- futuristic retheme: dark metal panels, neon accents that get
--- richer per tier.
+-- first field and be bought there (higher fields just roll the top
+-- rarities far more often). GroundColor/NeonColor drive the bright
+-- classic look: green meadow, pink candy grass, golden volcano sand,
+-- each with a cheerful accent colour for its portals and fences.
 --====================================================================--
 Config.Zones = {
 	{
-		Name = "Neon District", Price = 0,
+		Name = "Brainrot Meadows", Price = 0,
 		Center = Vector3.new(0, 0, -50), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(44, 42, 64),
-		NeonColor = Color3.fromRGB(176, 96, 255),
+		GroundColor = Color3.fromRGB(104, 196, 92),
+		NeonColor = Color3.fromRGB(255, 176, 66),
 		Weights = { 100, 32, 5, 1.5, 0.3 }, SpawnCap = 10,
 	},
 	{
-		Name = "Magenta Quarter", Price = 5000,
+		Name = "Candy Fields", Price = 5000,
 		Center = Vector3.new(0, 0, -118), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(56, 38, 74),
-		NeonColor = Color3.fromRGB(238, 92, 224),
+		GroundColor = Color3.fromRGB(244, 164, 196),
+		NeonColor = Color3.fromRGB(255, 92, 160),
 		Weights = { 55, 60, 22, 4, 0.6 }, SpawnCap = 9,
 	},
 	{
-		Name = "Quantum Heights", Price = 75000,
+		Name = "Golden Volcano", Price = 75000,
 		Center = Vector3.new(0, 0, -186), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(32, 42, 74),
-		NeonColor = Color3.fromRGB(92, 200, 255),
+		GroundColor = Color3.fromRGB(232, 178, 96),
+		NeonColor = Color3.fromRGB(255, 122, 40),
 		Weights = { 25, 55, 45, 14, 2.5 }, SpawnCap = 8,
 	},
 }
@@ -184,7 +184,7 @@ Config.Quests = {
 	{ Text = "Buy 2 upgrades",                                Kind = "Buy",         Target = 2,      Reward = 750 },
 	{ Text = "Buy a Rare (or better) Brainrot",               Kind = "BuyRarity",   Target = 2,      Reward = 1200 },
 	{ Text = "Buy 4 Brainrots from the portals",              Kind = "BuyBrainrot", Target = 4,      Reward = 2500 },
-	{ Text = "Unlock the Magenta Quarter",                   Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
+	{ Text = "Unlock the Candy Fields",                      Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
 	{ Text = "Buy 12 Brainrots from the portals",             Kind = "BuyBrainrot", Target = 12,     Reward = 6000 },
 	{ Text = "Earn $100,000 in total",                        Kind = "Earn",        Target = 100000, Reward = 15000 },
 	{ Text = "Rebirth for the first time",                    Kind = "Rebirth",     Target = 1,      Reward = 25000 },

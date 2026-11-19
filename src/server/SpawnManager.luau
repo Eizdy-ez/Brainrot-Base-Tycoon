@@ -41,8 +41,8 @@ end
 
 --====================================================================--
 -- Portal visual: a round hole in the ground — a dark pit disc ringed
--- in the zone's neon, with a glowing core, a point light and rising
--- sparkles. The portal visibly OPENS and CLOSES: its scale (st.PortalK,
+-- in the zone's accent colour, with a glowing core, a point light and
+-- rising sparkles. The portal visibly OPENS and CLOSES: its scale (st.PortalK,
 -- 0 = shut, 1 = fully open) irises the ring/disc/core in and out.
 -- Built per spawn and destroyed when the brainrot is bought or has
 -- finished sinking.

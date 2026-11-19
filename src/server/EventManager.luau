@@ -64,7 +64,7 @@ local function runGoldRain()
 	ctx.World.GoldRainEmitter.Rate = 0
 	ctx.GoldRainActive = false
 	musicAll("Main")
-	bannerAll("☀️ The Gold Rain has passed", "The city sparkles a little less… for now.", Color3.fromRGB(160, 210, 255), 3)
+	bannerAll("☀️ The Gold Rain has passed", "The meadows sparkle a little less… for now.", Color3.fromRGB(160, 210, 255), 3)
 	pushAll()
 end
 
