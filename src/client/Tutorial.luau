@@ -36,7 +36,7 @@ function Tutorial.Update(state)
 	hintFrame.Visible = true
 	hintLabel.Text = STEP_TEXT[step] or ""
 	if step == 0 then
-		targetPos = Vector3.new(0, 9, -64)
+		targetPos = Vector3.new(0, 9, -50)
 	else
 		local partName = ({ [1] = "PadTop1", [2] = "CollectPad", [3] = "Upgrade_Pads" })[step]
 		local part = partName and findBasePart(state, partName)

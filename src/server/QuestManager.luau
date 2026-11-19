@@ -17,8 +17,6 @@ local function baselineFor(profile, kind)
 		return profile.Stats.Bought
 	elseif kind == "BuyBrainrot" then
 		return profile.Stats.BrainrotsBought
-	elseif kind == "SurviveWave" then
-		return profile.Stats.WavesSurvived
 	end
 	return 0
 end
@@ -38,8 +36,6 @@ function QuestManager.GetProgress(player)
 		return profile.Stats.Bought - profile.QuestBase
 	elseif def.Kind == "BuyBrainrot" then
 		return profile.Stats.BrainrotsBought - profile.QuestBase
-	elseif def.Kind == "SurviveWave" then
-		return profile.Stats.WavesSurvived - profile.QuestBase
 	elseif def.Kind == "Earn" then
 		return math.floor(profile.TotalEarned)
 	elseif def.Kind == "BuyRarity" then

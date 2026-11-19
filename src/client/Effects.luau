@@ -1,6 +1,7 @@
--- Effects.luau — client juice: camera shake when the wave hits you, the
--- floating "+$" burst over the collect pad, dash FOV kick, and locally
--- hiding the gate barriers of zones you personally unlocked.
+-- Effects.luau — client juice: camera shake, the floating "+$" burst
+-- over the collect pad, dash FOV kick, the travelling pulse on the
+-- electric rails, and locally hiding the gate barriers of zones you
+-- personally unlocked.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
@@ -113,6 +114,30 @@ function Effects.Start(ctx)
 		while true do
 			task.wait(0.4)
 			Effects.PassOwnDoor()
+		end
+	end)
+	-- electric rails: a brightness pulse travels node to node along
+	-- every rail (client-only transparency, so it costs no replication)
+	task.spawn(function()
+		local worldRoot = Workspace:WaitForChild("BrainrotWorld", 15)
+		local rails = worldRoot and worldRoot:WaitForChild("Rails", 15)
+		if not rails then
+			return
+		end
+		local nodes = {}
+		for _, node in ipairs(rails:GetChildren()) do
+			if node.Name == "RailNode" then
+				nodes[#nodes + 1] = node
+			end
+		end
+		while true do
+			task.wait(0.06)
+			local t = os.clock()
+			for _, node in ipairs(nodes) do
+				local idx = node:GetAttribute("RailIndex") or 0
+				local pulse = 0.5 + 0.5 * math.sin(t * 4.2 - idx * 0.55)
+				node.Transparency = 0.72 - 0.62 * pulse
+			end
 		end
 	end)
 	RunService.RenderStepped:Connect(function(dt)

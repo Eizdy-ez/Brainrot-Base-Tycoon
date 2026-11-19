@@ -1,5 +1,5 @@
 -- AudioClient.luau — the game's ears: a looping APM soundtrack that follows
--- the action (calm main theme, sparkly gold-rain theme, rave during waves)
+-- the action (calm main theme, sparkly gold-rain theme)
 -- plus every sound effect, all from the verified ids in Config.Audio.
 -- The mute button lives in the HUD; state is kept here.
 
@@ -21,11 +21,11 @@ local currentTrack = nil
 local BGM_VOLUME = 0.32
 local SFX_VOLUME = {
 	Collect = 0.7, Buy = 0.7, Fanfare = 0.85, Celebrate = 0.7,
-	Magic = 0.6, Alarm = 0.65, WaveHit = 0.8, Bandit = 0.6, Pickup = 0.55,
+	Magic = 0.6, Bandit = 0.6, Pickup = 0.55,
 	Place = 0.6, Dash = 0.55, Click = 0.45, Error = 0.5, Thud = 0.6,
 }
 
-local TRACKS = { Main = "BgmMain", Gold = "BgmZone", Wave = "BgmEvent" }
+local TRACKS = { Main = "BgmMain", Gold = "BgmZone" }
 
 function AudioClient.PlayBgm(trackName)
 	local configKey = TRACKS[trackName] or "BgmMain"

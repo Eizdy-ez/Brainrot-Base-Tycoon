@@ -1,7 +1,7 @@
 -- CarryManager.luau — the hands of the game: buying wild brainrots via
 -- their portal prompts, the lucky-buy evolution roll, carrying them
 -- stacked on the head, placing them on base pads, stealing from unlocked
--- bases, and dropping everything when a wave (or death) knocks you over.
+-- bases, and dropping everything when death knocks you over.
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")

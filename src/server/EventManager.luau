@@ -1,14 +1,12 @@
--- EventManager.luau — the living world: Gold Rain (mutation frenzy), the
--- Brainrot Wave (a wall of cartoon chaos that knocks carried brainrots
--- loose unless you shelter in a base), and the Bandit NPC who sneaks into
--- bases and steals displayed brainrots unless a player tackles him.
+-- EventManager.luau — the living world: Gold Rain (mutation frenzy)
+-- and the Bandit NPC who sneaks into bases and steals displayed
+-- brainrots unless a player tackles him.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
-local Util = require(Shared:WaitForChild("Util"))
 
 local EventManager = {}
 local ctx
@@ -67,106 +65,6 @@ local function runGoldRain()
 	ctx.GoldRainActive = false
 	musicAll("Main")
 	bannerAll("☀️ The Gold Rain has passed", "The fields sparkle a little less… for now.", Color3.fromRGB(160, 210, 255), 3)
-	pushAll()
-end
-
---====================================================================--
--- Brainrot Wave
---====================================================================--
-local function runWave()
-	local participants = {}
-	eachPlayer(function(player)
-		participants[player] = true
-	end)
-	bannerAll("⚠️ BRAINROT WAVE INCOMING!", "Shelter inside ANY base — or keep your carry if you dare!", Color3.fromRGB(255, 90, 90), Config.Events.WaveWarningTime)
-	musicAll("Wave")
-	for _ = 1, 3 do
-		soundAll("Alarm", 1)
-		task.wait(1.4)
-	end
-	task.wait(math.max(0, Config.Events.WaveWarningTime - 4.2))
-
-	-- build the wave wall
-	local wallModel = Instance.new("Model")
-	wallModel.Name = "BrainrotWave"
-	local wall = Instance.new("Part")
-	wall.Name = "Wall"
-	wall.Size = Vector3.new(8, 30, 360)
-	wall.Color = Color3.fromRGB(64, 164, 255)
-	wall.Material = Enum.Material.Glass
-	wall.Transparency = 0.35
-	wall.Anchored = true
-	wall.CanCollide = false
-	wall.CanQuery = false
-	wall.CanTouch = false
-	wall.Parent = wallModel
-	local foam = Instance.new("Part")
-	foam.Name = "Foam"
-	foam.Size = Vector3.new(9, 5, 360)
-	foam.Color = Color3.fromRGB(240, 250, 255)
-	foam.Material = Enum.Material.SmoothPlastic
-	foam.Transparency = 0.2
-	foam.Anchored = true
-	foam.CanCollide = false
-	foam.CanQuery = false
-	foam.CanTouch = false
-	foam.Parent = wallModel
-	local sign = Instance.new("BillboardGui")
-	sign.Size = UDim2.fromOffset(500, 90)
-	sign.AlwaysOnTop = true
-	local signText = Instance.new("TextLabel")
-	signText.Size = UDim2.fromScale(1, 1)
-	signText.BackgroundTransparency = 1
-	signText.Text = "🌊 BRAINROT WAVE 🌊"
-	signText.TextColor3 = Color3.fromRGB(255, 255, 255)
-	signText.TextStrokeTransparency = 0.25
-	signText.Font = Enum.Font.FredokaOne
-	signText.TextSize = 44
-	signText.Parent = sign
-	sign.Parent = wall
-	wallModel.Parent = Workspace
-
-	local hit = {}
-	local sweepTime = Config.Events.WaveSweepTime
-	local elapsed = 0
-	local step = 0.1
-	while elapsed < sweepTime do
-		task.wait(step)
-		elapsed += step
-		local wallX = Util.Lerp(-210, 210, elapsed / sweepTime)
-		wall.CFrame = CFrame.new(wallX, 13, -110)
-		foam.CFrame = CFrame.new(wallX, 26, -110)
-		sign.StudsOffset = Vector3.new(0, 20, 0)
-		for player in pairs(participants) do
-			if not hit[player] then
-				local character = player.Character
-				local hrp = character and character:FindFirstChild("HumanoidRootPart")
-				if hrp and math.abs(hrp.Position.X - wallX) < 6 and not insideAnyBase(hrp.Position) then
-					hit[player] = true
-					ctx.Carry.DropAll(player, hrp.Position)
-					hrp.AssemblyLinearVelocity = Vector3.new(46, 30, 0)
-					ctx.Remotes.Event:FireClient(player, "Shake", 0.8)
-					ctx.Remotes.Event:FireClient(player, "PlaySound", "WaveHit", 1)
-					ctx.Remotes.Event:FireClient(player, "Notify", "🌊 The wave knocked your brainrots loose!", "Error")
-				end
-			end
-		end
-	end
-	wallModel:Destroy()
-	musicAll("Main")
-	-- survivors: sheltered in a base, or still holding a brainrot
-	for player in pairs(participants) do
-		local profile = ctx.Data.Profiles[player]
-		local character = player.Character
-		local hrp = character and character:FindFirstChild("HumanoidRootPart")
-		if profile and hrp then
-			if insideAnyBase(hrp.Position) or ctx.Carry.GetCount(player) > 0 then
-				profile.Stats.WavesSurvived += 1
-				ctx.Quests.Refresh(player)
-			end
-		end
-	end
-	bannerAll("🌈 The wave has passed!", "Survivors earned quest credit. The fields are restocking…", Color3.fromRGB(140, 255, 170), 3.5)
 	pushAll()
 end
 
@@ -289,7 +187,7 @@ local function runBandit()
 			end
 		end
 		if not state.dead then
-			walkTo(Vector3.new(0, 0, 96), 12, 25)
+			walkTo(Vector3.new(0, 0, 10), 12, 25)
 		end
 		if not state.dead and state.loot then
 			state.loot:Destroy()
@@ -306,21 +204,14 @@ function EventManager.Start(c)
 	ctx = c
 	-- widen the gold-rain rig so particles fall over the whole island
 	local rig = Workspace:WaitForChild("BrainrotWorld"):WaitForChild("GoldRainRig")
-	rig.Size = Vector3.new(330, 1, 410)
-	rig.CFrame = CFrame.new(0, 58, -110)
+	rig.Size = Vector3.new(240, 1, 250)
+	rig.CFrame = CFrame.new(0, 58, -93)
 
 	task.spawn(function()
 		task.wait(75)
 		while true do
 			runGoldRain()
 			task.wait(math.random(Config.Events.GoldRainInterval[1], Config.Events.GoldRainInterval[2]))
-		end
-	end)
-	task.spawn(function()
-		task.wait(120)
-		while true do
-			runWave()
-			task.wait(math.random(Config.Events.WaveInterval[1], Config.Events.WaveInterval[2]))
 		end
 	end)
 	task.spawn(function()
