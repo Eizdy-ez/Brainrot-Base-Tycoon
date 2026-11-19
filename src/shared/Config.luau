@@ -107,23 +107,23 @@ end
 --====================================================================--
 Config.Zones = {
 	{
-		Name = "Neon Outskirts", Price = 0,
+		Name = "Neon District", Price = 0,
 		Center = Vector3.new(0, 0, -50), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(52, 50, 72),
+		GroundColor = Color3.fromRGB(44, 42, 64),
 		NeonColor = Color3.fromRGB(176, 96, 255),
 		Weights = { 100, 32, 5, 1.5, 0.3 }, SpawnCap = 10,
 	},
 	{
-		Name = "Magenta Techfields", Price = 5000,
+		Name = "Magenta Quarter", Price = 5000,
 		Center = Vector3.new(0, 0, -118), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(66, 46, 86),
+		GroundColor = Color3.fromRGB(56, 38, 74),
 		NeonColor = Color3.fromRGB(238, 92, 224),
 		Weights = { 55, 60, 22, 4, 0.6 }, SpawnCap = 9,
 	},
 	{
-		Name = "Quantum Core", Price = 75000,
+		Name = "Quantum Heights", Price = 75000,
 		Center = Vector3.new(0, 0, -186), Size = Vector2.new(120, 44),
-		GroundColor = Color3.fromRGB(40, 52, 88),
+		GroundColor = Color3.fromRGB(32, 42, 74),
 		NeonColor = Color3.fromRGB(92, 200, 255),
 		Weights = { 25, 55, 45, 14, 2.5 }, SpawnCap = 8,
 	},
@@ -184,7 +184,7 @@ Config.Quests = {
 	{ Text = "Buy 2 upgrades",                                Kind = "Buy",         Target = 2,      Reward = 750 },
 	{ Text = "Buy a Rare (or better) Brainrot",               Kind = "BuyRarity",   Target = 2,      Reward = 1200 },
 	{ Text = "Buy 4 Brainrots from the portals",              Kind = "BuyBrainrot", Target = 4,      Reward = 2500 },
-	{ Text = "Unlock the Magenta Techfields",                 Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
+	{ Text = "Unlock the Magenta Quarter",                   Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
 	{ Text = "Buy 12 Brainrots from the portals",             Kind = "BuyBrainrot", Target = 12,     Reward = 6000 },
 	{ Text = "Earn $100,000 in total",                        Kind = "Earn",        Target = 100000, Reward = 15000 },
 	{ Text = "Rebirth for the first time",                    Kind = "Rebirth",     Target = 1,      Reward = 25000 },

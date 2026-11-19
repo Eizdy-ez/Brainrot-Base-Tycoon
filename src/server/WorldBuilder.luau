@@ -1,16 +1,19 @@
 -- WorldBuilder.luau — constructs the whole island from code at server start:
--- the spawn plaza AT the island centre, three fenced portal fields with
--- gates, eight tycoon base plots ringed tight around the centre (display
--- pads, collect/lock/rebirth pads, upgrade buttons), a futuristic
--- perimeter wall on every side, electric rails feeding every base and
--- gate from the plaza, big readable signs, a leaderboard board, and
--- decorations. The island is themed as a dark futuristic complex: metal
--- panel ground, purple/magenta neon lines, glowing pillars and holo
--- boards, richer per zone tier.
+-- the spawn plaza AT the island centre, three fenced portal districts
+-- with gates, eight tycoon base plots ringed tight around the centre
+-- (display pads, collect/lock/rebirth pads, upgrade buttons), a
+-- futuristic perimeter wall on every side, electric rails feeding
+-- every base and gate from the plaza, big readable signs, a
+-- leaderboard board, and decorations. The arena sits in the middle of
+-- a futuristic city AT NIGHT: runtime lighting turns the sky dark and
+-- foggy (default.project.json stays untouched), and a ring of neon-lit
+-- towers, ring roads and street lights stands outside the walls as
+-- the cyberpunk backdrop — purple/magenta/cyan neon everywhere.
 -- Everything is authored here as data + loops; no hand-placed Studio content.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
+local Lighting = game:GetService("Lighting")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Config = require(Shared:WaitForChild("Config"))
 local Util = require(Shared:WaitForChild("Util"))
@@ -121,6 +124,178 @@ local function buildTechCrate(parent, x, z, s, rot, colorIdx)
 	mkPart(g, "Crate", Vector3.new(3.2 * s, 3.2 * s, 3.2 * s), CFrame.new(x, 1.6 * s, z) * CFrame.Angles(0, rot, 0), Color3.fromRGB(44, 44, 62), Enum.Material.Metal)
 	local strip = mkPart(g, "Strip", Vector3.new(3.3 * s, 0.4 * s, 3.3 * s), CFrame.new(x, 2.6 * s, z) * CFrame.Angles(0, rot, 0), SHARD_COLORS[((colorIdx - 1) % #SHARD_COLORS) + 1], Enum.Material.Neon)
 	strip.CanCollide = false
+end
+
+--====================================================================--
+-- Night falls at runtime: the project file's daylight is replaced the
+-- moment the world builds — dark blue sky, fog for depth, a bloom
+-- lift so every neon strip in the city glows.
+--====================================================================--
+local function applyNight()
+	Lighting.ClockTime = 0.4
+	Lighting.Brightness = 1.1
+	Lighting.Ambient = Color3.fromRGB(40, 42, 70)
+	Lighting.OutdoorAmbient = Color3.fromRGB(26, 28, 50)
+	Lighting.FogColor = Color3.fromRGB(10, 11, 24)
+	Lighting.FogStart = 160
+	Lighting.FogEnd = 620
+	Lighting.EnvironmentDiffuseScale = 0.3
+	Lighting.EnvironmentSpecularScale = 0.5
+	local atmo = Lighting:FindFirstChildOfClass("Atmosphere")
+	if atmo then
+		atmo.Density = 0.3
+		atmo.Color = Color3.fromRGB(168, 174, 224)
+		atmo.Decay = Color3.fromRGB(28, 30, 58)
+		atmo.Glare = 0.12
+		atmo.Haze = 1.8
+	end
+	local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
+	if bloom then
+		bloom.Intensity = 0.9
+		bloom.Size = 36
+		bloom.Threshold = 0.72
+	end
+	local cc = Lighting:FindFirstChildOfClass("ColorCorrectionEffect")
+	if cc then
+		cc.TintColor = Color3.fromRGB(206, 212, 255)
+		cc.Contrast = 0.07
+		cc.Saturation = 0.06
+	end
+	local rays = Lighting:FindFirstChildOfClass("SunRaysEffect")
+	if rays then
+		rays.Intensity = 0.015
+		rays.Spread = 0.6
+	end
+end
+
+--====================================================================--
+-- The city beyond the walls: one vast asphalt slab, ring roads with
+-- glowing dashes, street lights, and a ring of towers wrapped in lit
+-- window bands, neon crowns, antennas and rooftop beacons. Pure
+-- backdrop — everything stands outside the perimeter wall and none
+-- of it collides.
+--====================================================================--
+local CITY_BODIES = {
+	Color3.fromRGB(15, 17, 29), Color3.fromRGB(19, 21, 36),
+	Color3.fromRGB(23, 25, 42), Color3.fromRGB(17, 20, 34),
+}
+local CITY_WINDOWS = {
+	Color3.fromRGB(255, 205, 130), Color3.fromRGB(130, 225, 255),
+	Color3.fromRGB(200, 220, 255), Color3.fromRGB(255, 150, 235),
+}
+local CITY_NEON = {
+	Color3.fromRGB(176, 96, 255), Color3.fromRGB(238, 92, 224), Color3.fromRGB(96, 225, 255),
+}
+
+local function noCollide(p)
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	return p
+end
+
+local function buildTower(parent, rng, x, z, signText, signColor)
+	local w = rng:NextNumber(18, 30)
+	local d = rng:NextNumber(18, 30)
+	local h = rng:NextNumber(30, 95)
+	local tower = noCollide(mkPart(parent, "CityTower", Vector3.new(w, h, d),
+		CFrame.new(x, h / 2 - 2.6, z), CITY_BODIES[rng:NextInteger(1, #CITY_BODIES)], Enum.Material.Metal))
+	-- lit window bands wrapping the tower, floor by floor
+	local bands = math.floor(h / 11)
+	for i = 1, bands do
+		if rng:NextNumber() < 0.82 then
+			local wc = CITY_WINDOWS[rng:NextInteger(1, #CITY_WINDOWS)]
+			local neon = rng:NextNumber() < 0.45
+			local band = noCollide(mkPart(parent, "TowerWindows", Vector3.new(w + 0.35, 1.1, d + 0.35),
+				CFrame.new(x, i * 11 - 2.6, z), wc, neon and Enum.Material.Neon or Enum.Material.SmoothPlastic))
+			if not neon then
+				band.Transparency = 0.35
+			end
+		end
+	end
+	-- a neon crown on some towers
+	if rng:NextNumber() < 0.5 then
+		noCollide(mkPart(parent, "TowerTrim", Vector3.new(w + 0.5, 0.7, d + 0.5),
+			CFrame.new(x, h - 2.9, z), CITY_NEON[rng:NextInteger(1, #CITY_NEON)], Enum.Material.Neon))
+	end
+	-- the tall ones get an antenna and a red aviation beacon
+	if h > 62 then
+		noCollide(mkPart(parent, "TowerAntenna", Vector3.new(0.5, 14, 0.5),
+			CFrame.new(x, h + 4.4 - 2.6, z), Color3.fromRGB(60, 64, 80), Enum.Material.Metal))
+		local beacon = noCollide(mkPart(parent, "TowerBeacon", Vector3.new(0.9, 0.9, 0.9),
+			CFrame.new(x, h + 11.6 - 2.6, z), Color3.fromRGB(255, 70, 70), Enum.Material.Neon))
+		beacon.Shape = Enum.PartType.Ball
+	end
+	-- a big neon sign on the arena-facing side of a few towers
+	if signText then
+		local dir = Vector3.new(0 - x, 0, -93 - z)
+		local len = math.sqrt(dir.X * dir.X + dir.Z * dir.Z)
+		dir = dir / len
+		local sy = h * 0.62
+		local sp = Vector3.new(x + dir.X * (d / 2 + 0.5), sy, z + dir.Z * (d / 2 + 0.5))
+		board(parent, "CitySign", Vector3.new(math.min(w - 2, 24), 6, 0.6),
+			CFrame.lookAt(sp, sp + dir), signText, nil, signColor, Color3.fromRGB(16, 16, 26))
+	end
+	return tower
+end
+
+local function buildCity(parent)
+	local city = Instance.new("Folder")
+	city.Name = "City"
+	city.Parent = parent
+
+	-- one vast dark asphalt slab under everything
+	noCollide(mkPart(city, "CityGround", Vector3.new(1600, 1, 1600), CFrame.new(0, -3.1, -93), Color3.fromRGB(13, 14, 22), Enum.Material.Concrete))
+
+	-- ring roads around the arena, centre dashes glowing
+	local function road(x1, z1, x2, z2, dashColor)
+		local dx, dz = x2 - x1, z2 - z1
+		local len = math.sqrt(dx * dx + dz * dz)
+		local mid = Vector3.new((x1 + x2) / 2, -2.52, (z1 + z2) / 2)
+		noCollide(mkPart(city, "RingRoad", Vector3.new(14, 0.16, len),
+			CFrame.lookAt(mid, Vector3.new(x2, -2.52, z2)), Color3.fromRGB(20, 20, 30), Enum.Material.Concrete))
+		local dashes = math.floor(len / 12)
+		for i = 0, dashes do
+			local k = i / dashes
+			noCollide(mkPart(city, "RoadDash", Vector3.new(0.7, 0.1, 4),
+				CFrame.lookAt(Vector3.new(x1 + dx * k, -2.4, z1 + dz * k), Vector3.new(x2, -2.4, z2)), dashColor, Enum.Material.Neon))
+		end
+	end
+	road(-300, 52, 300, 52, Color3.fromRGB(176, 96, 255))
+	road(300, -238, -300, -238, Color3.fromRGB(96, 225, 255))
+	road(-146, -238, -146, 52, Color3.fromRGB(238, 92, 224))
+	road(146, 52, 146, -238, Color3.fromRGB(176, 96, 255))
+
+	-- street lights along the two long roads
+	for x = -280, 280, 40 do
+		for _, rz in ipairs({ 45, -231 }) do
+			mkPart(city, "StreetLight", Vector3.new(0.4, 9.5, 0.4), CFrame.new(x, 2.15, rz), Color3.fromRGB(40, 42, 56), Enum.Material.Metal)
+			local bulb = noCollide(mkPart(city, "StreetBulb", Vector3.new(1.1, 1.1, 1.1), CFrame.new(x, 7.2, rz), Color3.fromRGB(226, 196, 255), Enum.Material.Neon))
+			bulb.Shape = Enum.PartType.Ball
+		end
+	end
+
+	-- the tower ring on all four sides
+	local rng = Random.new(20261120)
+	for x = -270, 270, 37 do
+		local sign = math.abs(x + 40) < 20 and "🌃 NEON CITY" or nil
+		buildTower(city, rng, x + rng:NextNumber(-5, 5), rng:NextNumber(66, 92), sign, Color3.fromRGB(96, 225, 255))
+	end
+	for x = -270, 270, 37 do
+		local sign = math.abs(x - 60) < 20 and "🍜 RAMEN 24H" or nil
+		buildTower(city, rng, x + rng:NextNumber(-5, 5), rng:NextNumber(-264, -240), sign, Color3.fromRGB(255, 150, 235))
+	end
+	for z = -220, 30, 37 do
+		local sign = math.abs(z + 60) < 20 and "🧠 BRAINROT BLVD" or nil
+		buildTower(city, rng, rng:NextNumber(-180, -156), z + rng:NextNumber(-5, 5), sign, Color3.fromRGB(255, 205, 130))
+	end
+	for z = -220, 30, 37 do
+		buildTower(city, rng, rng:NextNumber(156, 180), z + rng:NextNumber(-5, 5), nil, nil)
+	end
+
+	-- a hazy moon hanging over the southern towers
+	local moon = noCollide(mkPart(city, "Moon", Vector3.new(36, 36, 36), CFrame.new(210, 205, -430), Color3.fromRGB(225, 232, 255), Enum.Material.Neon))
+	moon.Shape = Enum.PartType.Ball
 end
 
 local function buildBase(parent, slot, centerX, centerZ)
@@ -322,19 +497,22 @@ local function buildBase(parent, slot, centerX, centerZ)
 end
 
 function WorldBuilder.Build()
+	applyNight()
 	local world = { Bases = {}, Zones = {} }
 	local root = Instance.new("Folder")
 	root.Name = "BrainrotWorld"
 	root.Parent = Workspace
 
-	-- ocean + island: one compact dark metal platform. The whole game
-	-- now lives in a tight arena centred on the spawn point (0, 0):
-	-- fields run south in a strip, bases ring the centre at x = ±92.
-	local water = mkPart(root, "Water", Vector3.new(1600, 2, 1600), CFrame.new(0, -4.2, -93), Color3.fromRGB(30, 84, 150), Enum.Material.SmoothPlastic)
+	-- the arena platform: one compact slab of city pavement. The whole
+	-- game lives in a tight arena centred on the spawn point (0, 0):
+	-- districts run south in a strip, bases ring the centre at x = ±92,
+	-- and the neon city stands all around it (buildCity, below).
+	local water = mkPart(root, "Water", Vector3.new(1600, 2, 1600), CFrame.new(0, -4.2, -93), Color3.fromRGB(10, 24, 46), Enum.Material.SmoothPlastic)
 	water.CanCollide = false
-	water.Transparency = 0.25
-	mkPart(root, "Sand", Vector3.new(260, 2, 272), CFrame.new(0, -1.6, -93), Color3.fromRGB(64, 62, 84), Enum.Material.Metal)
-	mkPart(root, "Grass", Vector3.new(248, 2, 260), CFrame.new(0, -1, -93), Color3.fromRGB(36, 34, 54), Enum.Material.Metal)
+	water.Transparency = 0.3
+	mkPart(root, "Sand", Vector3.new(260, 2, 272), CFrame.new(0, -1.6, -93), Color3.fromRGB(18, 18, 28), Enum.Material.Concrete)
+	mkPart(root, "Grass", Vector3.new(248, 2, 260), CFrame.new(0, -1, -93), Color3.fromRGB(27, 28, 42), Enum.Material.Concrete)
+	buildCity(root)
 
 	-- central path (plaza -> zone 3) and cross paths to the base rows:
 	-- dark metal walkways edged with neon guide lines
@@ -364,6 +542,13 @@ function WorldBuilder.Build()
 		mkPart(root, "PlazaPillar", Vector3.new(1.1, 9, 1.1), CFrame.new(corner[1], 4.5, corner[2]), Color3.fromRGB(40, 40, 56), Enum.Material.Metal)
 		local core = mkPart(root, "PlazaPillarCore", Vector3.new(0.5, 8.2, 0.5), CFrame.new(corner[1], 4.5, corner[2]), PATH_NEON_B, Enum.Material.Neon)
 		core.CanCollide = false
+		-- a real pool of magenta light at the plaza's corners
+		local light = Instance.new("PointLight")
+		light.Name = "PlazaGlow"
+		light.Color = PATH_NEON_B
+		light.Range = 20
+		light.Brightness = 0.9
+		light.Parent = core
 	end
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "Spawn"
@@ -465,7 +650,7 @@ function WorldBuilder.Build()
 		mkPart(root, "PerimeterPost", Vector3.new(1.6, 9.4, 1.6), CFrame.new(corner[1], 4.7, corner[2]), PERI_METAL, Enum.Material.Metal)
 	end
 
-	-- zone fields, fences, gates — futuristic retheme: dark metal panel
+	-- district fields, fences, gates — city retheme: dark metal panel
 	-- ground, a neon inlay, metal fences with a glowing top rail in the
 	-- zone's neon colour, corner light pillars, tech crates and a holo
 	-- board at the entrance. Visual richness grows with the tier: more
@@ -517,6 +702,15 @@ function WorldBuilder.Build()
 			local tip = mkPart(field, "PillarTip", Vector3.new(1.5, 1.5, 1.5), CFrame.new(zc.X + spot[1], 10.6, zc.Z + spot[2]), neon, Enum.Material.Neon)
 			tip.Shape = Enum.PartType.Ball
 			tip.CanCollide = false
+			if zi == 1 then
+				-- the free district's pillars throw real light pools
+				local light = Instance.new("PointLight")
+				light.Name = "PillarGlow"
+				light.Color = neon
+				light.Range = 15
+				light.Brightness = 0.7
+				light.Parent = tip
+			end
 		end
 		-- tech crates stacked near the edges (more in higher tiers)
 		for i = 1, 2 + zi do
@@ -528,7 +722,7 @@ function WorldBuilder.Build()
 		end
 		-- holo board at the field entrance naming the tier
 		local _, holoTitle = board(field, "HoloBoard", Vector3.new(16, 4.5, 0.5), CFrame.new(zc.X + 16, 6.5, zc.Z + zone.Size.Y / 2 + 3) * CFrame.Angles(0, math.rad(180), 0),
-			zone.Name:upper(), "TIER " .. zi .. " — portals open here!", neon, Color3.fromRGB(30, 28, 48))
+			zone.Name:upper(), "DISTRICT " .. zi .. " — portals open here!", neon, Color3.fromRGB(30, 28, 48))
 		holoTitle.TextTransparency = 0.05
 		-- perimeter fence with a gap on the path (x in [-7,7]) on both z sides:
 		-- dark metal posts, a neon top rail in the zone colour
@@ -594,10 +788,10 @@ function WorldBuilder.Build()
 		gem.CanCollide = false
 	end
 	board(root, "FieldsSign", Vector3.new(30, 5, 1), CFrame.new(0, 13.5, archZ) * CFrame.Angles(0, math.rad(180), 0),
-		"🧠 BRAINROT BASE TYCOON", "Portals open in the fields — buy a brainrot before it sinks away!", Color3.fromRGB(255, 214, 90), Color3.fromRGB(46, 44, 66))
+		"🧠 BRAINROT BASE TYCOON", "Portals open in the districts — buy a brainrot before it sinks away!", Color3.fromRGB(255, 214, 90), Color3.fromRGB(46, 44, 66))
 
 	-- eight bases in two tight columns flanking the field strip, their
-	-- fronts an 8-stud walk from the fields, ringing the central plaza
+	-- fronts an 8-stud walk from the districts, ringing the central plaza
 	local slot = 0
 	for _, x in ipairs({ -92, 92 }) do
 		for _, z in ipairs(BASE_ROWS) do
@@ -613,7 +807,7 @@ function WorldBuilder.Build()
 	local rng = Random.new(20261119)
 	local function pointFree(x, z)
 		if math.abs(x) < 64 and z < -24 and z > -212 then
-			return false -- the field strip
+			return false -- the district strip
 		end
 		if math.abs(x) > 64 and math.abs(x) < 120 then
 			for _, rowZ in ipairs(BASE_ROWS) do
@@ -658,10 +852,12 @@ function WorldBuilder.Build()
 	end
 	for _ = 1, 7 do
 		local cx, cz = rng:NextNumber(-150, 150), rng:NextNumber(-230, 30)
-		local cy = rng:NextNumber(58, 84)
+		local cy = rng:NextNumber(52, 72)
 		for j = 1, 3 do
+			-- night clouds: dark silhouettes drifting over the neon
 			local cloud = mkPart(root, "Cloud", Vector3.new(rng:NextNumber(16, 30), 3.2, rng:NextNumber(8, 14)),
-				CFrame.new(cx + (j - 2) * 11, cy + rng:NextNumber(-1, 1), cz), Color3.fromRGB(252, 252, 255))
+				CFrame.new(cx + (j - 2) * 11, cy + rng:NextNumber(-1, 1), cz), Color3.fromRGB(24, 26, 42))
+			cloud.Transparency = 0.3
 			cloud.CanCollide = false
 			cloud.CanQuery = false
 			cloud.CanTouch = false
