@@ -12,6 +12,13 @@
 -- Pumpkowl's pumpkin head with huge owl eyes, Satelerror's TV-screen
 -- face with a glitch mouth, Waffleone's syrup, cape and sceptre…).
 --
+-- CHIBI pass: the sheets draw the cast with heads at 40-50% of total
+-- height and faces that fill the head. Head parts are therefore
+-- authored in head units and multiplied by HS (below) on top of the
+-- rarity scale — sizes AND offsets — so every head lands at 40-50% of
+-- its model's height and every eye is ~0.9 studs tall at Common scale,
+-- readable from a normal gameplay camera (20+ studs).
+--
 -- Animation is pure code: the head rides a Motor6D "neck" and the arms
 -- hang on Motor6D shoulders, and Factory.Pose swings them — a gentle
 -- idle sway with a tilting head, and a proper arm-swing walk cycle
@@ -67,7 +74,7 @@ local PROPS = {
 	["Lampadina"] = { Suit = Color3.fromRGB(198, 118, 54) },  -- amber cardigan
 	["Satelerror"] = { Suit = Color3.fromRGB(52, 56, 68), TVHead = true }, -- charcoal robot
 	["Biscotto Bot"] = { BotArms = true },                    -- grey robot limbs, cookie hands
-	["Pumpkowl"] = { Body = Vector3.new(2.3, 2.5, 2.0) },     -- plump pumpkin body
+	["Pumpkowl"] = { Body = Vector3.new(2.4, 2.1, 2.0) },     -- plump pumpkin body
 	["Splashound"] = { NoMouth = true },                      -- the snout carries the mouth
 	["Volpina Neon"] = { NoMouth = true },                    -- the muzzle covers it
 }
@@ -107,35 +114,47 @@ function Factory.Pose(model, kind, t)
 end
 
 --====================================================================--
--- The standard expressive face, drawn on the head mount's front:
--- round black eyes with a white glint, brows, and a mouth built from
--- little bars (a smile arc, or a smirk for the smug ones).
+-- The standard expressive face, drawn BIG on the head mount's front:
+-- round black eyes ~0.68 head-units tall (×HS×scale ≈ 0.94 studs at
+-- Common) with a white glint, brows, and a mouth built from little
+-- bars (a smile arc, or a smirk for the smug ones). On the round
+-- (Ball) heads each feature sits on the sphere's own surface; on
+-- Waffleone's flat waffle head everything uses the face plane.
 --====================================================================--
+local HEAD_RX, HEAD_RY, HEAD_RZ = 0.75, 0.65, 0.70 -- standard head radii (authored)
+local function faceSurfZ(x, y)
+	local k = 1 - (x / HEAD_RX) ^ 2 - (y / HEAD_RY) ^ 2
+	return -HEAD_RZ * math.sqrt(math.max(k, 0.04))
+end
+
 local function buildFace(def, hadd, A)
 	local style = FACE_STYLE[def.Name] or "Cute"
 	local fz = A.FaceZ
+	local eyeZ = A.RoundHead and (faceSurfZ(0.38, 0.2) - 0.06) or (fz - 0.02)
+	local browZ = A.RoundHead and (faceSurfZ(0.37, 0.52) - 0.04) or (fz - 0.02)
+	local mouthZ = A.RoundHead and (faceSurfZ(0, -0.38) - 0.05) or (fz - 0.02)
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.3, 0.42, 0.16), CFrame.new(side * 0.36, 0.14, fz), INK))
-		ball(hadd("Glint" .. tag, Vector3.new(0.1, 0.13, 0.06), CFrame.new(side * 0.36 - 0.07, 0.25, fz - 0.08), WHITE, Enum.Material.Neon))
+		ball(hadd("Eye" .. tag, Vector3.new(0.55, 0.68, 0.22), CFrame.new(side * 0.38, 0.2, eyeZ), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.2, 0.24, 0.1), CFrame.new(side * 0.38 - 0.08, 0.33, eyeZ - 0.1), WHITE, Enum.Material.Neon))
 		local tilt = 0
 		if style == "Smug" or style == "Brave" then
 			tilt = -side * 0.4
 		else
 			tilt = side * 0.12
 		end
-		hadd("Brow" .. tag, Vector3.new(0.34, 0.08, 0.06), CFrame.new(side * 0.37, 0.45, fz) * CFrame.Angles(0, 0, tilt), INK)
+		hadd("Brow" .. tag, Vector3.new(0.52, 0.13, 0.1), CFrame.new(side * 0.37, 0.52, browZ) * CFrame.Angles(0, 0, tilt), INK)
 	end
 	local props = PROPS[def.Name]
 	if props and props.NoMouth then
 		return
 	end
 	if style == "Smug" then
-		hadd("Smirk", Vector3.new(0.42, 0.09, 0.06), CFrame.new(0.09, -0.3, fz) * CFrame.Angles(0, 0, 0.18), INK)
+		hadd("Smirk", Vector3.new(0.6, 0.13, 0.1), CFrame.new(0.1, -0.36, mouthZ) * CFrame.Angles(0, 0, 0.18), INK)
 	else
-		hadd("SmileM", Vector3.new(0.26, 0.08, 0.06), CFrame.new(0, -0.33, fz), INK)
-		hadd("SmileL", Vector3.new(0.2, 0.08, 0.06), CFrame.new(-0.21, -0.28, fz) * CFrame.Angles(0, 0, 0.5), INK)
-		hadd("SmileR", Vector3.new(0.2, 0.08, 0.06), CFrame.new(0.21, -0.28, fz) * CFrame.Angles(0, 0, -0.5), INK)
+		hadd("SmileM", Vector3.new(0.42, 0.13, 0.1), CFrame.new(0, -0.4, mouthZ), INK)
+		hadd("SmileL", Vector3.new(0.3, 0.13, 0.1), CFrame.new(-0.29, -0.34, mouthZ) * CFrame.Angles(0, 0, 0.5), INK)
+		hadd("SmileR", Vector3.new(0.3, 0.13, 0.1), CFrame.new(0.29, -0.34, mouthZ) * CFrame.Angles(0, 0, -0.5), INK)
 	end
 end
 
@@ -163,13 +182,13 @@ function AccessoryBuilders.ToasterHead(model, body, def, add, hadd, A)
 	hadd("FacePanel", Vector3.new(1.66, 1.0, 0.12), CFrame.new(0, 0.1, -0.68), Color3.fromRGB(246, 238, 220))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.3, 0.38, 0.14), CFrame.new(side * 0.4, 0.2, -0.76), INK))
-		ball(hadd("Glint" .. tag, Vector3.new(0.1, 0.12, 0.06), CFrame.new(side * 0.4 - 0.07, 0.3, -0.83), WHITE, Enum.Material.Neon))
-		hadd("Brow" .. tag, Vector3.new(0.3, 0.07, 0.06), CFrame.new(side * 0.4, 0.46, -0.75) * CFrame.Angles(0, 0, side * 0.12), INK)
+		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.66, 0.2), CFrame.new(side * 0.42, 0.22, -0.78), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.18, 0.2, 0.08), CFrame.new(side * 0.42 - 0.08, 0.33, -0.86), WHITE, Enum.Material.Neon))
+		hadd("Brow" .. tag, Vector3.new(0.48, 0.12, 0.08), CFrame.new(side * 0.42, 0.54, -0.76) * CFrame.Angles(0, 0, side * 0.12), INK)
 	end
-	hadd("SmileM", Vector3.new(0.24, 0.07, 0.06), CFrame.new(0, -0.18, -0.75), INK)
-	hadd("SmileL", Vector3.new(0.18, 0.07, 0.06), CFrame.new(-0.19, -0.14, -0.75) * CFrame.Angles(0, 0, 0.5), INK)
-	hadd("SmileR", Vector3.new(0.18, 0.07, 0.06), CFrame.new(0.19, -0.14, -0.75) * CFrame.Angles(0, 0, -0.5), INK)
+	hadd("SmileM", Vector3.new(0.38, 0.12, 0.08), CFrame.new(0, -0.2, -0.76), INK)
+	hadd("SmileL", Vector3.new(0.28, 0.12, 0.08), CFrame.new(-0.27, -0.15, -0.76) * CFrame.Angles(0, 0, 0.5), INK)
+	hadd("SmileR", Vector3.new(0.28, 0.12, 0.08), CFrame.new(0.27, -0.15, -0.76) * CFrame.Angles(0, 0, -0.5), INK)
 	hadd("ToastSlot", Vector3.new(1.5, 0.14, 0.9), CFrame.new(0, 0.78, 0), BLACK)
 	hadd("ToastL", Vector3.new(0.62, 0.85, 0.92), CFrame.new(-0.4, 1.05, 0), Color3.fromRGB(246, 208, 140))
 	hadd("ToastR", Vector3.new(0.62, 0.68, 0.92), CFrame.new(0.4, 0.97, 0), Color3.fromRGB(240, 196, 128))
@@ -185,7 +204,7 @@ function AccessoryBuilders.LampHead(model, body, def, add, hadd, A)
 	-- the sheet: a big BELL lampshade for a head, glowing warm, its
 	-- face printed on the shade's front, a brass finial on top; the
 	-- brass stem neck stays on the body so the shade can tilt
-	add("Neck", Vector3.new(0.3, 0.55, 0.3), CFrame.new(0, 1.3, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal)
+	add("Neck", Vector3.new(0.3, 0.8, 0.3), CFrame.new(0, 1.2, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal)
 	local flare = hadd("ShadeFlare", Vector3.new(2.1, 0.55, 2.1), CFrame.new(0, 0.32, 0), def.Accent, Enum.Material.Neon)
 	flare.Shape = Enum.PartType.Cylinder
 	local top = hadd("ShadeTop", Vector3.new(1.5, 0.6, 1.5), CFrame.new(0, 0.82, 0), def.Accent, Enum.Material.Neon)
@@ -204,12 +223,12 @@ function AccessoryBuilders.LampHead(model, body, def, add, hadd, A)
 	-- the face glows through the shade's front
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.26, 0.36, 0.12), CFrame.new(side * 0.38, 0.38, -1.02), INK))
-		hadd("Brow" .. tag, Vector3.new(0.3, 0.07, 0.06), CFrame.new(side * 0.38, 0.62, -1.0) * CFrame.Angles(0, 0, side * 0.12), INK)
+		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.66, 0.18), CFrame.new(side * 0.4, 0.42, -1.04), INK))
+		hadd("Brow" .. tag, Vector3.new(0.46, 0.12, 0.08), CFrame.new(side * 0.4, 0.56, -1.03) * CFrame.Angles(0, 0, side * 0.12), INK)
 	end
-	hadd("SmileM", Vector3.new(0.26, 0.08, 0.06), CFrame.new(0, 0.05, -1.06), INK)
-	hadd("SmileL", Vector3.new(0.2, 0.08, 0.06), CFrame.new(-0.21, 0.1, -1.05) * CFrame.Angles(0, 0, 0.5), INK)
-	hadd("SmileR", Vector3.new(0.2, 0.08, 0.06), CFrame.new(0.21, 0.1, -1.05) * CFrame.Angles(0, 0, -0.5), INK)
+	hadd("SmileM", Vector3.new(0.4, 0.12, 0.08), CFrame.new(0, 0.02, -1.12), INK)
+	hadd("SmileL", Vector3.new(0.3, 0.12, 0.08), CFrame.new(-0.29, 0.07, -1.11) * CFrame.Angles(0, 0, 0.5), INK)
+	hadd("SmileR", Vector3.new(0.3, 0.12, 0.08), CFrame.new(0.29, 0.07, -1.11) * CFrame.Angles(0, 0, -0.5), INK)
 	-- cardigan buttons down the torso, like the sheet's cosy outfit
 	for i = 0, 2 do
 		ball(add("Button" .. i, Vector3.new(0.16, 0.16, 0.16), CFrame.new(0, 0.45 - i * 0.45, -A.HalfD - 0.04), Color3.fromRGB(120, 70, 34)))
@@ -226,55 +245,57 @@ function AccessoryBuilders.TeapotHead(model, body, def, add, hadd, A)
 	ball(hadd("LidKnob", Vector3.new(0.4, 0.4, 0.4), CFrame.new(0, 0.95, 0), def.Accent, Enum.Material.Metal))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.28, 0.38, 0.12), CFrame.new(side * 0.36, 0.38, -0.84), INK))
-		ball(hadd("Glint" .. tag, Vector3.new(0.09, 0.11, 0.05), CFrame.new(side * 0.36 - 0.06, 0.48, -0.9), WHITE, Enum.Material.Neon))
+		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.66, 0.18), CFrame.new(side * 0.38, 0.42, -0.78), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.16, 0.2, 0.08), CFrame.new(side * 0.38 - 0.07, 0.53, -0.85), WHITE, Enum.Material.Neon))
 	end
-	hadd("SmileM", Vector3.new(0.24, 0.07, 0.06), CFrame.new(0, -0.05, -0.88), INK)
-	hadd("SmileL", Vector3.new(0.18, 0.07, 0.06), CFrame.new(-0.19, -0.01, -0.87) * CFrame.Angles(0, 0, 0.5), INK)
-	hadd("SmileR", Vector3.new(0.18, 0.07, 0.06), CFrame.new(0.19, -0.01, -0.87) * CFrame.Angles(0, 0, -0.5), INK)
+	hadd("SmileM", Vector3.new(0.38, 0.12, 0.08), CFrame.new(0, -0.1, -0.8), INK)
+	hadd("SmileL", Vector3.new(0.28, 0.12, 0.08), CFrame.new(-0.27, -0.05, -0.79) * CFrame.Angles(0, 0, 0.5), INK)
+	hadd("SmileR", Vector3.new(0.28, 0.12, 0.08), CFrame.new(0.27, -0.05, -0.79) * CFrame.Angles(0, 0, -0.5), INK)
 end
 
 function AccessoryBuilders.PirateHat(model, body, def, add, hadd, A)
-	local brim = hadd("HatBrim", Vector3.new(1.9, 0.18, 1.5), CFrame.new(0, 1.12, 0), BLACK)
+	local brim = hadd("HatBrim", Vector3.new(1.9, 0.18, 1.5), CFrame.new(0, 0.95, 0), BLACK)
 	brim.Shape = Enum.PartType.Cylinder
-	hadd("HatTop", Vector3.new(1.3, 0.5, 1.1), CFrame.new(0, 1.34, 0), BLACK)
-	ball(hadd("Skull", Vector3.new(0.44, 0.44, 0.44), CFrame.new(0, 1.3, -0.58), WHITE))
+	hadd("HatTop", Vector3.new(1.3, 0.5, 1.1), CFrame.new(0, 1.17, 0), BLACK)
+	ball(hadd("Skull", Vector3.new(0.44, 0.44, 0.44), CFrame.new(0, 1.13, -0.58), WHITE))
 end
 
 function AccessoryBuilders.CookieHead(model, body, def, add, hadd, A)
 	-- the sheet: the head IS a big flat cookie disc, face and all —
 	-- chocolate-chip freckles, big brown eyes, a happy smile
-	local disc = hadd("CookieHead", Vector3.new(2.1, 0.5, 2.1), CFrame.new(0, 0.1, 0) * CFrame.Angles(math.rad(90), 0, 0), def.Body)
+	local disc = hadd("CookieHead", Vector3.new(1.45, 0.5, 1.45), CFrame.new(0, 0.1, 0) * CFrame.Angles(math.rad(90), 0, 0), def.Body)
 	disc.Shape = Enum.PartType.Cylinder
-	local chips = { { -0.62, 0.55 }, { 0.58, 0.72 }, { -0.15, 0.85 }, { 0.8, -0.35 }, { -0.85, -0.3 }, { 0.25, -0.78 } }
+	local chips = { { -0.4, 0.36 }, { 0.38, 0.47 }, { -0.1, 0.55 }, { 0.52, -0.23 }, { -0.55, -0.2 }, { 0.16, -0.51 } }
 	for i, spot in ipairs(chips) do
-		ball(hadd("HeadChip" .. i, Vector3.new(0.24, 0.24, 0.24), CFrame.new(spot[1], spot[2], -0.22), def.Accent))
+		ball(hadd("HeadChip" .. i, Vector3.new(0.24, 0.24, 0.24), CFrame.new(spot[1], spot[2], -0.24), def.Accent))
 	end
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.32, 0.4, 0.14), CFrame.new(side * 0.38, 0.05, -0.28), def.Accent))
-		ball(hadd("Glint" .. tag, Vector3.new(0.11, 0.13, 0.06), CFrame.new(side * 0.38 - 0.07, 0.16, -0.35), WHITE, Enum.Material.Neon))
+		ball(hadd("Eye" .. tag, Vector3.new(0.5, 0.68, 0.2), CFrame.new(side * 0.36, 0.02, -0.3), def.Accent))
+		ball(hadd("Glint" .. tag, Vector3.new(0.17, 0.21, 0.08), CFrame.new(side * 0.36 - 0.07, 0.14, -0.38), WHITE, Enum.Material.Neon))
 	end
-	hadd("SmileM", Vector3.new(0.28, 0.08, 0.06), CFrame.new(0, -0.38, -0.27), def.Accent)
-	hadd("SmileL", Vector3.new(0.2, 0.08, 0.06), CFrame.new(-0.23, -0.33, -0.27) * CFrame.Angles(0, 0, 0.5), def.Accent)
-	hadd("SmileR", Vector3.new(0.2, 0.08, 0.06), CFrame.new(0.23, -0.33, -0.27) * CFrame.Angles(0, 0, -0.5), def.Accent)
+	hadd("SmileM", Vector3.new(0.42, 0.13, 0.08), CFrame.new(0, -0.42, -0.29), def.Accent)
+	hadd("SmileL", Vector3.new(0.3, 0.13, 0.08), CFrame.new(-0.3, -0.37, -0.29) * CFrame.Angles(0, 0, 0.5), def.Accent)
+	hadd("SmileR", Vector3.new(0.3, 0.13, 0.08), CFrame.new(0.3, -0.37, -0.29) * CFrame.Angles(0, 0, -0.5), def.Accent)
 end
 
 function AccessoryBuilders.PumpkinHead(model, body, def, add, hadd, A)
 	-- the sheet: a ribbed pumpkin for a head with HUGE owl eyes on pale
 	-- eye discs, a little beak, and the stem + leaf on top
-	ball(hadd("Pumpkin", Vector3.new(1.7, 1.55, 1.6), CFrame.new(0, 0.08, 0), Color3.fromRGB(245, 150, 55)))
+	ball(hadd("Pumpkin", Vector3.new(1.6, 1.45, 1.5), CFrame.new(0, 0.08, 0), Color3.fromRGB(245, 150, 55)))
 	for i = -1, 1 do
-		hadd("HeadRib" .. (i + 2), Vector3.new(0.14, 1.4, 0.14), CFrame.new(i * 0.55, 0.08, -0.78), Color3.fromRGB(226, 124, 38))
+		-- each rib hugs the pumpkin's curved front at its own x
+		local ribZ = -(0.75 * math.sqrt(math.max(1 - (i * 0.55 / 0.8) ^ 2, 0.05)) + 0.08)
+		hadd("HeadRib" .. (i + 2), Vector3.new(0.14, 1.3, 0.14), CFrame.new(i * 0.55, 0.08, ribZ), Color3.fromRGB(226, 124, 38))
 	end
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("EyeDisc" .. tag, Vector3.new(0.62, 0.62, 0.2), CFrame.new(side * 0.4, 0.18, -0.72), Color3.fromRGB(252, 214, 150)))
-		ball(hadd("Eye" .. tag, Vector3.new(0.4, 0.4, 0.16), CFrame.new(side * 0.4, 0.18, -0.82), INK))
-		ball(hadd("Glint" .. tag, Vector3.new(0.13, 0.13, 0.06), CFrame.new(side * 0.4 - 0.09, 0.3, -0.9), WHITE, Enum.Material.Neon))
+		ball(hadd("EyeDisc" .. tag, Vector3.new(0.8, 0.8, 0.22), CFrame.new(side * 0.38, 0.2, -0.68), Color3.fromRGB(252, 214, 150)))
+		ball(hadd("Eye" .. tag, Vector3.new(0.52, 0.52, 0.18), CFrame.new(side * 0.38, 0.2, -0.76), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.17, 0.17, 0.07), CFrame.new(side * 0.38 - 0.09, 0.32, -0.83), WHITE, Enum.Material.Neon))
 	end
-	ball(hadd("BeakTop", Vector3.new(0.36, 0.2, 0.3), CFrame.new(0, -0.22, -0.8), Color3.fromRGB(255, 190, 60)))
-	ball(hadd("BeakLow", Vector3.new(0.28, 0.14, 0.24), CFrame.new(0, -0.36, -0.78), Color3.fromRGB(240, 170, 50)))
+	ball(hadd("BeakTop", Vector3.new(0.36, 0.2, 0.3), CFrame.new(0, -0.22, -0.78), Color3.fromRGB(255, 190, 60)))
+	ball(hadd("BeakLow", Vector3.new(0.28, 0.14, 0.24), CFrame.new(0, -0.36, -0.76), Color3.fromRGB(240, 170, 50)))
 	hadd("Stem", Vector3.new(0.3, 0.5, 0.3), CFrame.new(0, 0.95, 0) * CFrame.Angles(0, 0, math.rad(10)), Color3.fromRGB(84, 140, 60))
 	local leaf = ball(hadd("Leaf", Vector3.new(0.55, 0.16, 0.4), CFrame.new(0.35, 0.9, 0), Color3.fromRGB(96, 160, 70)))
 	leaf.Transparency = 0.05
@@ -283,18 +304,18 @@ end
 function AccessoryBuilders.TVHead(model, body, def, add, hadd, A)
 	-- the sheet: a chunky monitor head whose dark screen carries the
 	-- face — glowing cyan eyes and a jagged glitch mouth
-	hadd("Monitor", Vector3.new(1.75, 1.45, 1.25), CFrame.new(0, 0.12, 0), Color3.fromRGB(52, 56, 68), Enum.Material.Metal)
-	hadd("Screen", Vector3.new(1.45, 1.15, 0.1), CFrame.new(0, 0.12, -0.64), Color3.fromRGB(10, 14, 22))
+	hadd("Monitor", Vector3.new(1.8, 1.38, 1.3), CFrame.new(0, 0.12, 0), Color3.fromRGB(52, 56, 68), Enum.Material.Metal)
+	hadd("Screen", Vector3.new(1.5, 1.06, 0.1), CFrame.new(0, 0.12, -0.66), Color3.fromRGB(10, 14, 22))
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
-		ball(hadd("Eye" .. tag, Vector3.new(0.27, 0.27, 0.12), CFrame.new(side * 0.35, 0.3, -0.7), def.Accent, Enum.Material.Neon))
+		ball(hadd("Eye" .. tag, Vector3.new(0.68, 0.68, 0.14), CFrame.new(side * 0.36, 0.28, -0.73), def.Accent, Enum.Material.Neon))
 		local can = hadd("EarCan" .. tag, Vector3.new(0.55, 0.18, 0.55), CFrame.new(side * 0.95, 0.12, 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(70, 74, 86), Enum.Material.Metal)
 		can.Shape = Enum.PartType.Cylinder
 	end
 	-- the glitch mouth: five neon teeth zig-zagging across the screen
 	for i = 0, 4 do
-		hadd("Glitch" .. i, Vector3.new(0.17, 0.11, 0.06),
-			CFrame.new(-0.34 + i * 0.17, -0.28 + (i % 2 == 0 and 0.05 or -0.05), -0.7), def.Accent, Enum.Material.Neon)
+		hadd("Glitch" .. i, Vector3.new(0.19, 0.16, 0.06),
+			CFrame.new(-0.38 + i * 0.19, -0.3 + (i % 2 == 0 and 0.05 or -0.05), -0.73), def.Accent, Enum.Material.Neon)
 	end
 end
 
@@ -423,7 +444,7 @@ function AccessoryBuilders.FoxMuzzle(model, body, def, add, hadd, A)
 end
 
 function AccessoryBuilders.Crown(model, body, def, add, hadd, A)
-	local band = hadd("CrownBand", Vector3.new(1.2, 0.4, 1.2), CFrame.new(0, A.TopY + 0.22, 0), GOLD, Enum.Material.Metal)
+	local band = hadd("CrownBand", Vector3.new(1.2, 0.4, 1.2), CFrame.new(0, A.TopY + 0.16, 0), GOLD, Enum.Material.Metal)
 	band.Shape = Enum.PartType.Cylinder
 	for i = 1, 4 do
 		local a = (i / 4) * math.pi * 2 + math.pi / 4
@@ -497,7 +518,7 @@ end
 
 function AccessoryBuilders.CookieDisc(model, body, def, add, hadd, A)
 	-- a second cookie worn as a chest plate
-	local disc = add("CookieTorso", Vector3.new(2.6, 0.5, 2.6), CFrame.new(0, 0, -A.HalfD - 0.1) * CFrame.Angles(math.rad(90), 0, 0), def.Body)
+	local disc = add("CookieTorso", Vector3.new(2.2, 0.5, 2.2), CFrame.new(0, 0, -A.HalfD - 0.1) * CFrame.Angles(math.rad(90), 0, 0), def.Body)
 	disc.Shape = Enum.PartType.Cylinder
 end
 
@@ -695,7 +716,8 @@ end
 -- then the head on its neck Motor6D, arms on shoulder Motor6Ds, then
 -- the character's signature accessory set on top.
 --====================================================================--
-local HEAD_Y = 1.55 -- body-local height of the head centre
+local HEAD_Y = 1.55 -- body-local height of the head centre (bandit only)
+local HS = 1.4 -- chibi head factor: head parts scale by scale * HS
 
 function Factory.Build(def, mutation)
 	local model = Instance.new("Model")
@@ -703,22 +725,27 @@ function Factory.Build(def, mutation)
 
 	local scale = 0.9 + def.Rarity * 0.09
 	local props = PROPS[def.Name] or {}
-	local bodySize = def.BodySize or props.Body or Vector3.new(2.1, 2.3, 1.6)
+	-- chibi torso: shorter and a touch wider/deeper than the old plan
+	local bodySize = def.BodySize or props.Body or Vector3.new(2.2, 1.9, 1.7)
 	local torsoColor = props.Suit or def.Body
 
 	local body = part(model, "Body", bodySize * scale, CFrame.new(0, 0, 0), torsoColor)
 	body.Anchored = true
 	model.PrimaryPart = body
 
+	-- head centre: the torso's top plus the (scaled) head's lower half,
+	-- pulled down a quarter-stud so the big head sits ON the shoulders
+	local headY = (bodySize.Y / 2 + 0.65 * HS) * scale - 0.25
+
 	-- the head mount: an invisible pivot the neck Motor6D swings
-	local mountOffset = CFrame.new(0, HEAD_Y, 0)
+	local mountOffset = CFrame.new(0, headY, 0)
 	local mount = part(model, "HeadMount", Vector3.new(0.2, 0.2, 0.2), body.CFrame * mountOffset, WHITE)
 	mount.Transparency = 1
 	local neck = Instance.new("Motor6D")
 	neck.Name = "Neck"
 	neck.Part0 = body
 	neck.Part1 = mount
-	neck.C0 = CFrame.new(0, 1.05, 0)
+	neck.C0 = CFrame.new(0, headY - 0.5 * scale, 0)
 	neck.C1 = mountOffset:Inverse() * neck.C0
 	neck.Parent = body
 
@@ -728,17 +755,22 @@ function Factory.Build(def, mutation)
 		return p
 	end
 
+	-- head parts: size AND offset scale by scale * HS, so authored head
+	-- proportions (and the face on them) survive at every rarity
 	local function hadd(name, size, offset, color, material)
-		local p = part(model, name, size * scale, mount.CFrame * offset, color, material)
+		local k = scale * HS
+		local scaled = CFrame.new(offset.Position * k) * (offset - offset.Position)
+		local p = part(model, name, size * k, mount.CFrame * scaled, color, material)
 		weldTo(p, mount)
 		return p
 	end
 
 	local A = {
 		HeadPos = Vector3.new(0, 0, 0), -- head-local origin
-		HeadY = HEAD_Y,
-		FaceZ = -(1.4 * scale) / 2 - 0.02,
-		TopY = 0.65 * scale,
+		HeadY = headY,
+		FaceZ = -0.7, -- authored front plane of the standard head
+		TopY = 0.65, -- authored top of the standard head
+		RoundHead = def.Name ~= "Waffleone", -- Waffleone keeps a flat waffle face
 		HalfW = body.Size.X / 2,
 		HalfH = body.Size.Y / 2,
 		HalfD = body.Size.Z / 2,
@@ -746,13 +778,17 @@ function Factory.Build(def, mutation)
 	}
 
 	if not def.NoHead then
-		hadd("Head", Vector3.new(1.5, 1.3, 1.4), CFrame.new(0, 0, 0), def.Body)
+		local headPart = hadd("Head", Vector3.new(1.5, 1.3, 1.4), CFrame.new(0, 0, 0), def.Body)
+		if A.RoundHead then
+			headPart.Shape = Enum.PartType.Ball
+		end
 		buildFace(def, hadd, A)
 	end
 
-	-- feet
-	add("FootL", Vector3.new(0.62, 0.42, 0.9), CFrame.new(-0.55, -1.3, -0.08), BLACK)
-	add("FootR", Vector3.new(0.62, 0.42, 0.9), CFrame.new(0.55, -1.3, -0.08), BLACK)
+	-- feet planted under the (shorter) chibi torso at every scale
+	local footY = -(A.HalfH + 0.14)
+	add("FootL", Vector3.new(0.62, 0.42, 0.9), CFrame.new(-0.55, footY, -0.08), BLACK)
+	add("FootR", Vector3.new(0.62, 0.42, 0.9), CFrame.new(0.55, footY, -0.08), BLACK)
 
 	-- arms on shoulder Motor6Ds (robot arms for the bot, cookie hands)
 	local armColor = props.BotArms and Color3.fromRGB(120, 124, 132) or torsoColor

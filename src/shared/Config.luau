@@ -55,7 +55,7 @@ Config.Brainrots = {
 	-- Legendary
 	{ Name = "Drake Frutto",    Rarity = 4, Income = 300, Body = Color3.fromRGB(240, 84, 140),  Accent = Color3.fromRGB(84, 200, 110),  Accessory = { "DragonWings", "Horns", "DragonTail" } },
 	{ Name = "Volpina Neon",    Rarity = 4, Income = 380, Body = Color3.fromRGB(245, 130, 50),  Accent = Color3.fromRGB(96, 235, 255),  Accessory = { "FoxEars", "FoxMuzzle", "TripleTail" } },
-	{ Name = "Tornadino",       Rarity = 4, Income = 450, Body = Color3.fromRGB(140, 152, 175), Accent = Color3.fromRGB(216, 178, 110), Accessory = { "TornadoBody", "CowboyHat" }, BodySize = Vector3.new(1.5, 2.3, 1.5) },
+	{ Name = "Tornadino",       Rarity = 4, Income = 450, Body = Color3.fromRGB(140, 152, 175), Accent = Color3.fromRGB(216, 178, 110), Accessory = { "TornadoBody", "CowboyHat" }, BodySize = Vector3.new(1.7, 1.9, 1.7) },
 	-- Mythic
 	{ Name = "Waffleone",       Rarity = 5, Income = 2000, Body = Color3.fromRGB(232, 176, 92),  Accent = Color3.fromRGB(150, 84, 30),   Accessory = { "WaffleGrid", "SyrupTop", "Crown", "Cape", "Scepter" } },
 	{ Name = "Balena Void",     Rarity = 5, Income = 2600, Body = Color3.fromRGB(52, 48, 120),   Accent = Color3.fromRGB(178, 120, 255), Accessory = { "WhaleTail", "Stars", "MoonFin" } },
