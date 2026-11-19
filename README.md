@@ -1,21 +1,64 @@
-# roblox-brainrot-01 starter
+# Brainrot Base Tycoon
 
-A working entry for make.fun's "Make the best AI Roblox brainrot game" bounty (roblox-brainrot-01), laid out as your
-repository: a Rojo project whose game is a grey square that moves with the arrow keys. It is a starting point, not a
-winner, and not yet the 3D game the bounty asks for: its square is drawn on the screen, not in Roblox's 3D world.
+**Catch wild brainrots. Display them at your base. Get filthy rich.**
 
-- `main.ts` (Node 22, standard library only) hands the game in: it copies `game.rbxl`, `src/`, `screenshots/` and
-  `PLAY.json` to `/output`, leaving out every name that starts with a dot (such as `.gitkeep` or `.DS_Store`, which
-  fail an entry), and writes `/output/dossier.json` with `vendor/makefun-roblox.ts`, the kit's copy, unchanged.
-- `game.rbxl` is the place Rojo builds from `src/` and `default.project.json`; `screenshots/` holds three captures of
-  it; `PLAY.json` names no place yet, so the gate refuses the starter as it stands until it names your published one.
-- One of your screenshots must also be your game's first thumbnail on Roblox: the same picture, uploaded on the
-  Creator Dashboard with your game's icon.
-- `TOUR.json` is an example of the optional tour: for each screenshot, the keys that bring the game to that screen.
+A full tycoon for Roblox, built for the make.fun bounty
+[Make the best AI Roblox brainrot game](https://make.fun/bounties/roblox-brainrot-01).
+Play it here: https://www.roblox.com/games/130449382374278
 
-Run it as the grader does, writing `out/` in place of `/output`:
+Wild Italian-brainrot characters — Tung Tung Tung Sahur, Cappuccino Assassino,
+Bombardiro Crocodilo, Lirili Larila and eleven more — wander three spawn
+fields in five rarities (Common, Rare, Epic, Legendary, Mythic) with Shiny
+(×2) and Golden (×5) mutations. Touch one to carry it home (they stack on
+your head), place it on a display pedestal, and it prints cash every second.
+Collect, upgrade, fuse, unlock richer zones, survive the events, rebirth,
+and top the Cash Kings leaderboard.
 
-    mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts
+## How to play
 
-The rules are on the bounty's page (/bounty/roblox-brainrot-01) and in the kit's RULES.txt,
-which gives every command in order (Before you submit, then Enter).
+1. **Catch** — run into a wild brainrot in the fields to pick it up.
+2. **Place** — step on a glowing pad at your base to display it.
+3. **Collect** — income piles up; step on the green pad to bank it.
+4. **Grow** — buy more pads, speed, carry capacity and luck; fuse 3 identical
+   brainrots into the next rarity; unlock the Neon Lagoon ($5,000) and the
+   Golden Volcano ($75,000) for far richer spawns.
+5. **Watch out** — every few minutes something happens: **Gold Rain** (mutations
+   everywhere), the **Brainrot Wave** (a wall of water that knocks your carry
+   loose — hide in your base!), or a **Bandit** who steals from unlocked bases.
+   Lock your base, steal from careless rivals, tackle the bandit.
+6. **Rebirth** — reset for a permanent +50% income multiplier and a golden aura,
+   and climb the quest chain (10 quests) and the in-game leaderboard.
+
+Shift (or the DASH button) gives you a speed burst. A step-by-step tutorial
+arrow guides your first loop.
+
+## What's inside
+
+- **15 hand-modelled blocky brainrots** built from primitives in code, each
+  with accessories (saxophone, espresso cup, propeller, cactus body, shark
+  fins…), rarity colours, sparkles and name/rarity/income billboards.
+- **Full progression**: 4 upgrade tracks, 3 zones with their own spawn pools,
+  fusion, rebirth with aura, 10 chained quests, persistent DataStore saves
+  (with session fallback), per-player bases for 8 players.
+- **Live events**: Gold Rain, the Brainrot Wave, and a base-raiding Bandit NPC.
+- **Music & sound**: a cheerful public-domain APM soundtrack that follows the
+  action (calm fields, rave during events) plus a full set of verified sound
+  effects — pickup, place, collect, buy, error, wave alarm, rebirth fanfare —
+  with a mute toggle. Every audio id was verified against the Roblox asset API.
+- **Client juice**: camera shake, collect bursts, dash FOV kick, toasts,
+  event banners, per-player gate barriers.
+
+## Tech
+
+- All place content is authored as files: Luau sources in `src/`
+  (`server/`, `client/`, `shared/`), assembled into `game.rbxl` with
+  [Rojo](https://rojo.space) from `default.project.json`. The world itself is
+  built procedurally by the server scripts at runtime.
+- `main.ts` (Node, standard library only) packages the entry for make.fun.
+- No external assets besides the verified Roblox audio ids above.
+- `TOUR.json` walks a reviewer from the plaza into the fields and back to
+  the base row, one step per screenshot.
+
+## License
+
+MIT — see `LICENSE`.
