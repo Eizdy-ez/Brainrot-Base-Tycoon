@@ -2,8 +2,8 @@
 -- brainrots. A wild brainrot simply APPEARS standing on the field,
 -- already walking: it wanders its zone for a few seconds with a Buy
 -- prompt on it, then wanders off (despawns) if nobody bought it.
--- There is no portal and no rising/sinking: surface spawn, plain
--- walking, flat feet — the wander never bounces the model.
+-- Surface spawn, plain walking, flat feet — the wander never
+-- bounces the model.
 -- Dropped or rescued brainrots (death drops, bandit loot) re-enter
 -- through the same registry: no despawn timer, same Buy prompt.
 -- Rarity rolls per zone; shiny/golden mutations boosted during Gold Rain.

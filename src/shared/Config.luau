@@ -101,7 +101,7 @@ end
 -- nonzero weight in EVERY zone: no character is locked behind a paid
 -- gate — anything in the roster can appear in the free first field
 -- and be bought there (higher fields just roll the top rarities far
--- more often). GroundColor/NeonColor (the zone's accent) drive the
+-- more often). GroundColor/AccentColor drive the
 -- bright classic look: green meadow, pink candy grass, golden volcano
 -- sand, each with a cheerful accent colour for its fences and trims.
 --====================================================================--
@@ -110,21 +110,21 @@ Config.Zones = {
 		Name = "Brainrot Meadows", Price = 0,
 		Center = Vector3.new(0, 0, -50), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(104, 196, 92),
-		NeonColor = Color3.fromRGB(255, 176, 66),
+		AccentColor = Color3.fromRGB(255, 176, 66),
 		Weights = { 100, 32, 5, 1.5, 0.3 }, SpawnCap = 10,
 	},
 	{
 		Name = "Candy Fields", Price = 5000,
 		Center = Vector3.new(0, 0, -118), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(244, 164, 196),
-		NeonColor = Color3.fromRGB(255, 92, 160),
+		AccentColor = Color3.fromRGB(255, 92, 160),
 		Weights = { 55, 60, 22, 4, 0.6 }, SpawnCap = 9,
 	},
 	{
 		Name = "Golden Volcano", Price = 75000,
 		Center = Vector3.new(0, 0, -186), Size = Vector2.new(120, 44),
 		GroundColor = Color3.fromRGB(232, 178, 96),
-		NeonColor = Color3.fromRGB(255, 122, 40),
+		AccentColor = Color3.fromRGB(255, 122, 40),
 		Weights = { 25, 55, 45, 14, 2.5 }, SpawnCap = 8,
 	},
 }

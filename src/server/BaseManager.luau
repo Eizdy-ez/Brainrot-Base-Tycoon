@@ -48,7 +48,7 @@ function BaseManager.RenderDisplayed(base)
 		end
 		-- pad top dim when the slot is not yet bought
 		if profile and i <= profile.Pads then
-			pad.Part.Material = Enum.Material.Neon
+			pad.Part.Material = Enum.Material.SmoothPlastic
 			pad.Part.Transparency = 0
 		else
 			pad.Part.Material = Enum.Material.SmoothPlastic
@@ -242,23 +242,6 @@ function BaseManager.Start(c)
 		wireBase(base)
 		BaseManager.UpdateGate(base)
 	end
-
-	-- running floor lights: a brightness wave travels strip to strip
-	-- across each base's glass floor (cheap: transparency only, ~8 Hz)
-	task.spawn(function()
-		while true do
-			task.wait(0.12)
-			local t = os.clock()
-			for _, base in ipairs(BaseManager.List) do
-				if base.LightStrips then
-					for _, strip in ipairs(base.LightStrips) do
-						local wave = 0.5 + 0.5 * math.sin(t * 2.6 - strip.Phase * 0.9 + base.Slot * 1.7)
-						strip.Part.Transparency = 0.66 - 0.6 * wave
-					end
-				end
-			end
-		end
-	end)
 
 	-- displayed brainrots slowly spin in place (vertical bob kept to a
 	-- breath — 0.05 studs — so nothing reads as bouncing)

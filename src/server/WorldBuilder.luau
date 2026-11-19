@@ -1,9 +1,8 @@
 -- WorldBuilder.luau — constructs the whole island from code at server start:
--- the spawn plaza AT the island centre, three fenced portal fields
+-- the spawn plaza AT the island centre, three fenced fields
 -- with gates, eight tycoon base plots ringed tight around the centre
 -- (display pads, collect/lock/rebirth pads, upgrade buttons), a playful
--- perimeter fence on every side, rainbow light rails feeding every
--- base and gate from the plaza, big readable signs, a leaderboard
+-- perimeter fence on every side, big readable signs, a leaderboard
 -- board, and decorations. The look is the classic brainrot one: BRIGHT
 -- DAYTIME, green grass, candy colours, toy-box bases, trees, flowers
 -- and white clouds (runtime lighting restores the project's sunny
@@ -203,7 +202,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 
 	-- Toy-box shell: a pastel floor in the slot's own colour over a cream
 	-- slab, ringed by full walls on all four sides — cream panels below,
-	-- light glass above — crowned by one slim glowing line in the slot
+	-- light glass above — crowned by one slim line in the slot
 	-- colour. The front wall (facing the island centre) holds the gate;
 	-- its door is driven by the base lock (see BaseManager.UpdateGate).
 	local CREAM_WALL = Color3.fromRGB(240, 228, 198)
@@ -217,31 +216,28 @@ local function buildBase(parent, slot, centerX, centerZ)
 	local base = {
 		Slot = slot, Center = Vector3.new(centerX, 1, centerZ), Model = model,
 		Pending = 0, Owner = nil, Locked = false, LockUntil = 0, LockReadyAt = 0,
-		Pads = {}, UpgradePads = {}, LightStrips = {},
+		Pads = {}, UpgradePads = {},
 	}
 
-	-- running-light strips set into the floor: a sparse cross of glowing
-	-- strips (2 each way) alternating the base's colour and its rainbow
-	-- neighbour. BaseManager pulses them in sequence so a wave of light
-	-- still travels across the floor instead of the strips sitting static.
+	-- pastel inlay strips set into the floor: a sparse cross (2 each
+	-- way) alternating the base's colour and its neighbour — a quiet
+	-- toy-floor inlay, static and glow-free.
 	local stripB = BASE_COLORS[(slot % #BASE_COLORS) + 1]
 	local gridOffsets = { -13.8, 13.8 }
 	for i, go in ipairs(gridOffsets) do
-		local across = mkPart(model, "LightStripX" .. i, Vector3.new(45, 0.14, 0.42), CFrame.new(centerX, 1.06, centerZ + go), i % 2 == 0 and stripB or color, Enum.Material.Neon)
+		local across = mkPart(model, "LightStripX" .. i, Vector3.new(45, 0.14, 0.42), CFrame.new(centerX, 1.06, centerZ + go), i % 2 == 0 and stripB or color, Enum.Material.SmoothPlastic)
 		across.CanCollide = false
 		across.CanQuery = false
 		across.CanTouch = false
-		base.LightStrips[#base.LightStrips + 1] = { Part = across, Phase = i }
 		local alongPos = L(go, 0)
-		local along = mkPart(model, "LightStripZ" .. i, Vector3.new(0.42, 0.14, 45), CFrame.new(alongPos.X, 1.06, centerZ), i % 2 == 0 and color or stripB, Enum.Material.Neon)
+		local along = mkPart(model, "LightStripZ" .. i, Vector3.new(0.42, 0.14, 45), CFrame.new(alongPos.X, 1.06, centerZ), i % 2 == 0 and color or stripB, Enum.Material.SmoothPlastic)
 		along.CanCollide = false
 		along.CanQuery = false
 		along.CanTouch = false
-		base.LightStrips[#base.LightStrips + 1] = { Part = along, Phase = i + 0.5 }
 	end
 
 	-- one straight wall run in local plot coords: cream band (y 1..4.2),
-	-- glass band (up to y 9.4), top rail, and the thin glowing crown
+	-- glass band (up to y 9.4), top rail, and the thin crown
 	-- line in the slot colour. glassBottom > 4.2 + noLower builds a
 	-- lintel (no cream band) for the stretch over the gate opening.
 	local WALL_T = 0.8
@@ -263,7 +259,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 		local gb = glassBottom or 4.2
 		seg("WallGlass", 9.4 - gb, (9.4 + gb) / 2, WALL_T, GLASS_TINT, Enum.Material.Glass, 0.45)
 		seg("WallTopRail", 0.55, 9.68, WALL_T + 0.35, CREAM_DARK, Enum.Material.SmoothPlastic)
-		local crown = seg("WallCrown", 0.3, 10.1, 0.34, color, Enum.Material.Neon)
+		local crown = seg("WallCrown", 0.3, 10.1, 0.34, color, Enum.Material.SmoothPlastic)
 		crown.CanCollide = false
 		crown.Transparency = 0.1
 	end
@@ -308,7 +304,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 
 	-- 12 display pedestals hugging the walls, as in the concept: six
 	-- along the back wall, three along each side wall, leaving the
-	-- glowing floor open in the middle.
+	-- inlaid floor open in the middle.
 	local padSpots = {}
 	for i = 0, 5 do
 		padSpots[#padSpots + 1] = { 18.6, -15 + i * 6 }
@@ -322,14 +318,14 @@ local function buildBase(parent, slot, centerX, centerZ)
 	for padIndex, spot in ipairs(padSpots) do
 		local pos = L(spot[1], spot[2])
 		local pedestal = mkPart(model, "Pad" .. padIndex, Vector3.new(3.8, 0.9, 3.8), CFrame.new(pos.X, 1.45, pos.Z), Color3.fromRGB(238, 228, 200), Enum.Material.SmoothPlastic)
-		local top = mkPart(model, "PadTop" .. padIndex, Vector3.new(3.9, 0.22, 3.9), CFrame.new(pos.X, 1.95, pos.Z), color, Enum.Material.Neon)
+		local top = mkPart(model, "PadTop" .. padIndex, Vector3.new(3.9, 0.22, 3.9), CFrame.new(pos.X, 1.95, pos.Z), color, Enum.Material.SmoothPlastic)
 		top.CanCollide = false
 		base.Pads[padIndex] = { Part = top, Pedestal = pedestal, Anchor = Vector3.new(pos.X, 2.05, pos.Z), Model = nil }
 	end
 
-	-- collect pad (glowing cylinder the owner stands on to claim cash)
+	-- collect pad (green cylinder the owner stands on to claim cash)
 	local cPos = L(-7, -9)
-	local collect = mkPart(model, "CollectPad", Vector3.new(6.4, 0.5, 6.4), CFrame.new(cPos.X, 1.25, cPos.Z), Color3.fromRGB(64, 220, 110), Enum.Material.Neon)
+	local collect = mkPart(model, "CollectPad", Vector3.new(6.4, 0.5, 6.4), CFrame.new(cPos.X, 1.25, cPos.Z), Color3.fromRGB(64, 220, 110), Enum.Material.SmoothPlastic)
 	collect.Shape = Enum.PartType.Cylinder
 	base.CollectPad = collect
 	base.CollectLabel = padLabel(collect, "COLLECT\n$0", Color3.fromRGB(190, 255, 205), 3.6)
@@ -342,7 +338,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 
 	-- a decorative toy cube floats on the spare floor spot by the pads
 	local fPos = L(-15, -9)
-	local holo = mkPart(model, "ToyCube", Vector3.new(2.2, 2.2, 2.2), CFrame.new(fPos.X, 3.4, fPos.Z) * CFrame.Angles(math.rad(24), math.rad(36), 0), stripB, Enum.Material.Neon)
+	local holo = mkPart(model, "ToyCube", Vector3.new(2.2, 2.2, 2.2), CFrame.new(fPos.X, 3.4, fPos.Z) * CFrame.Angles(math.rad(24), math.rad(36), 0), stripB, Enum.Material.SmoothPlastic)
 	holo.Transparency = 0.15
 	holo.CanCollide = false
 	holo.CanQuery = false
@@ -351,7 +347,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 
 	-- rebirth pad
 	local rPos = L(-15, 9)
-	local rebirth = mkPart(model, "RebirthPad", Vector3.new(5.4, 0.5, 5.4), CFrame.new(rPos.X, 1.25, rPos.Z), Color3.fromRGB(255, 120, 160), Enum.Material.Neon)
+	local rebirth = mkPart(model, "RebirthPad", Vector3.new(5.4, 0.5, 5.4), CFrame.new(rPos.X, 1.25, rPos.Z), Color3.fromRGB(255, 120, 160), Enum.Material.SmoothPlastic)
 	base.RebirthPad = rebirth
 	padLabel(rebirth, "🌟 REBIRTH", Color3.fromRGB(255, 205, 225), 3.4)
 
@@ -380,7 +376,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 	for _, lz in ipairs({ -18, 18 }) do
 		local pos = L(-20, lz)
 		mkPart(model, "LampPost", Vector3.new(0.5, 5.5, 0.5), CFrame.new(pos.X, 3.7, pos.Z), Color3.fromRGB(150, 120, 84), Enum.Material.Wood)
-		local bulb = mkPart(model, "LampBulb", Vector3.new(1.1, 1.1, 1.1), CFrame.new(pos.X, 6.8, pos.Z), Color3.fromRGB(255, 230, 150), Enum.Material.Neon)
+		local bulb = mkPart(model, "LampBulb", Vector3.new(1.1, 1.1, 1.1), CFrame.new(pos.X, 6.8, pos.Z), Color3.fromRGB(255, 230, 150), Enum.Material.SmoothPlastic)
 		bulb.Shape = Enum.PartType.Ball
 		bulb.CanCollide = false
 	end
@@ -406,26 +402,26 @@ function WorldBuilder.Build()
 	mkPart(root, "Grass", Vector3.new(248, 2, 260), CFrame.new(0, -1, -93), Color3.fromRGB(102, 194, 88), Enum.Material.Grass)
 
 	-- central path (plaza -> zone 3) and cross paths to the base rows:
-	-- sandy walkways edged with glowing guide lines
+	-- sandy walkways edged with plain guide lines
 	local PATH_SAND = Color3.fromRGB(238, 226, 192)
 	local PATH_A = Color3.fromRGB(255, 176, 66)
 	local PATH_B = Color3.fromRGB(255, 110, 170)
 	local BASE_ROWS = { 0, -50, -118, -186 }
 	mkPart(root, "PathMain", Vector3.new(12, 0.3, 224), CFrame.new(0, 0.06, -94), PATH_SAND, Enum.Material.Sand)
 	for _, sx in ipairs({ -6.4, 6.4 }) do
-		local edge = mkPart(root, "PathEdge", Vector3.new(0.5, 0.34, 224), CFrame.new(sx, 0.08, -94), PATH_A, Enum.Material.Neon)
+		local edge = mkPart(root, "PathEdge", Vector3.new(0.5, 0.34, 224), CFrame.new(sx, 0.08, -94), PATH_A, Enum.Material.SmoothPlastic)
 		edge.CanCollide = false
 	end
 	for _, z in ipairs(BASE_ROWS) do
 		mkPart(root, "PathCross", Vector3.new(232, 0.3, 10), CFrame.new(0, 0.06, z), PATH_SAND, Enum.Material.Sand)
-		local line = mkPart(root, "PathCrossLine", Vector3.new(232, 0.34, 0.5), CFrame.new(0, 0.08, z), PATH_B, Enum.Material.Neon)
+		local line = mkPart(root, "PathCrossLine", Vector3.new(232, 0.34, 0.5), CFrame.new(0, 0.08, z), PATH_B, Enum.Material.SmoothPlastic)
 		line.CanCollide = false
 	end
 
 	-- spawn plaza AT the centre point: a cream disc with a golden
-	-- glowing rim and candy corner pillars; the player spawn sits in
+	-- rim and candy corner pillars; the player spawn sits in
 	-- its middle
-	local rim = mkPart(root, "PlazaRim", Vector3.new(48, 0.4, 48), CFrame.new(0, 0.02, 0), PATH_A, Enum.Material.Neon)
+	local rim = mkPart(root, "PlazaRim", Vector3.new(48, 0.4, 48), CFrame.new(0, 0.02, 0), PATH_A, Enum.Material.SmoothPlastic)
 	rim.Shape = Enum.PartType.Cylinder
 	rim.CanCollide = false
 	local plaza = mkPart(root, "Plaza", Vector3.new(44, 0.5, 44), CFrame.new(0, 0.1, 0), Color3.fromRGB(243, 233, 205), Enum.Material.Concrete)
@@ -433,22 +429,15 @@ function WorldBuilder.Build()
 	for ci, corner in ipairs({ { -17, -17 }, { 17, -17 }, { -17, 17 }, { 17, 17 } }) do
 		mkPart(root, "PlazaPillar", Vector3.new(1.1, 9, 1.1), CFrame.new(corner[1], 4.5, corner[2]), Color3.fromRGB(238, 228, 200), Enum.Material.SmoothPlastic)
 		local coreColor = CANDY_COLORS[((ci - 1) % #CANDY_COLORS) + 1]
-		local core = mkPart(root, "PlazaPillarCore", Vector3.new(0.5, 8.2, 0.5), CFrame.new(corner[1], 4.5, corner[2]), coreColor, Enum.Material.Neon)
+		local core = mkPart(root, "PlazaPillarCore", Vector3.new(0.5, 8.2, 0.5), CFrame.new(corner[1], 4.5, corner[2]), coreColor, Enum.Material.SmoothPlastic)
 		core.CanCollide = false
-		-- a soft pool of light at the plaza's corners
-		local light = Instance.new("PointLight")
-		light.Name = "PlazaGlow"
-		light.Color = coreColor
-		light.Range = 20
-		light.Brightness = 0.5
-		light.Parent = core
 	end
 	local spawn = Instance.new("SpawnLocation")
 	spawn.Name = "Spawn"
 	spawn.Size = Vector3.new(8, 1, 8)
 	spawn.CFrame = CFrame.new(0, 0.8, 0) * CFrame.Angles(0, math.rad(180), 0)
 	spawn.Color = Color3.fromRGB(90, 200, 255)
-	spawn.Material = Enum.Material.Neon
+	spawn.Material = Enum.Material.SmoothPlastic
 	spawn.Anchored = true
 	spawn.Neutral = true
 	spawn.Parent = root
@@ -473,47 +462,6 @@ function WorldBuilder.Build()
 		"🛒 SHOP — press SHOP button!", nil, Color3.fromRGB(96, 58, 12), Color3.fromRGB(255, 205, 90))
 
 	--================================================================--
-	-- Rainbow light rails: glowing bead lines on the ground running
-	-- from the plaza to every base front and down the spine past both
-	-- zone gates. Geometry is built here; the travelling light pulse
-	-- is a client effect (Effects) playing over the RailNode parts,
-	-- each of which carries its distance along the route as
-	-- "RailIndex". The beads cycle the rainbow along the route.
-	--================================================================--
-	local rails = Instance.new("Folder")
-	rails.Name = "Rails"
-	rails.Parent = root
-	local RAIL_TRACK = Color3.fromRGB(214, 202, 176)
-	local RAINBOW = {
-		Color3.fromRGB(255, 92, 92), Color3.fromRGB(255, 160, 60), Color3.fromRGB(255, 220, 80),
-		Color3.fromRGB(96, 205, 100), Color3.fromRGB(80, 170, 255), Color3.fromRGB(178, 110, 255),
-	}
-	local function buildRail(x1, z1, x2, z2)
-		local dx, dz = x2 - x1, z2 - z1
-		local len = math.sqrt(dx * dx + dz * dz)
-		local mid = Vector3.new((x1 + x2) / 2, 0.44, (z1 + z2) / 2)
-		local track = mkPart(rails, "RailTrack", Vector3.new(1.7, 0.16, len + 1.7),
-			CFrame.lookAt(mid, Vector3.new(x2, 0.44, z2)), RAIL_TRACK, Enum.Material.Concrete)
-		track.CanCollide = false
-		local nodeCount = math.max(2, math.floor(len / 6))
-		for i = 0, nodeCount do
-			local k = i / nodeCount
-			local node = mkPart(rails, "RailNode", Vector3.new(0.62, 0.62, 0.62),
-				CFrame.new(x1 + dx * k, 0.58, z1 + dz * k), RAINBOW[(i % #RAINBOW) + 1], Enum.Material.Neon)
-			node.Shape = Enum.PartType.Ball
-			node.CanCollide = false
-			node.CanQuery = false
-			node.CanTouch = false
-			node:SetAttribute("RailIndex", math.floor(len * k))
-		end
-	end
-	buildRail(0, 6, 0, -202) -- the spine: plaza -> gate 2 -> gate 3
-	for _, rowZ in ipairs(BASE_ROWS) do
-		buildRail(0, rowZ, -66, rowZ)
-		buildRail(0, rowZ, 66, rowZ)
-	end
-
-	--================================================================--
 	-- Perimeter fence on EVERY side of the arena, Steal-a-Brainrot
 	-- style: a warm wooden band, a light glass band above and a slim
 	-- golden crown line — the same language as the base shells, one
@@ -536,7 +484,7 @@ function WorldBuilder.Build()
 		seg("PerimeterWood", 4.2, 2.1, 0.8, PERI_WOOD, Enum.Material.Wood)
 		seg("PerimeterGlass", 5.2, 6.8, 0.8, PERI_GLASS, Enum.Material.Glass, 0.45)
 		seg("PerimeterRail", 0.55, 9.68, 1.15, PERI_WOOD, Enum.Material.Wood)
-		local crown = seg("PerimeterTrim", 0.3, 10.1, 0.34, PATH_A, Enum.Material.Neon)
+		local crown = seg("PerimeterTrim", 0.3, 10.1, 0.34, PATH_A, Enum.Material.SmoothPlastic)
 		crown.CanCollide = false
 		crown.Transparency = 0.1
 	end
@@ -550,47 +498,26 @@ function WorldBuilder.Build()
 
 	-- the three fields, fences, gates — classic meadow look: coloured
 	-- grass (sand for the volcano tier), a lighter inner tint, wooden
-	-- fences with a glowing top rail in the zone's accent colour,
-	-- corner light pillars, toy crates and a readable board at the
-	-- entrance. Visual richness grows with the tier: more pillars,
-	-- crates and an inner glow ring in the highest zone.
+	-- fences with a top rail in the zone's accent colour,
+	-- corner pillars, toy crates and a readable board at the
+	-- entrance. Visual richness grows with the tier: more pillars
+	-- and crates in the higher zones.
 	local ZONE_MATS = { Enum.Material.Grass, Enum.Material.Grass, Enum.Material.Sand }
 	for zi, zone in ipairs(Config.Zones) do
 		local zc = zone.Center
-		local neon = zone.NeonColor
+		local accent = zone.AccentColor
 		local groundMat = ZONE_MATS[zi] or Enum.Material.Grass
 		local field = Instance.new("Model")
 		field.Name = "Zone" .. zi
 		field.Parent = root
 		mkPart(field, "Ground", Vector3.new(zone.Size.X, 0.6, zone.Size.Y), CFrame.new(zc.X, 0.05, zc.Z), zone.GroundColor, groundMat)
-		mkPart(field, "InnerTint", Vector3.new(zone.Size.X - 10, 0.2, zone.Size.Y - 10), CFrame.new(zc.X, 0.3, zc.Z), zone.GroundColor:Lerp(neon, 0.18), groundMat)
+		mkPart(field, "InnerTint", Vector3.new(zone.Size.X - 10, 0.2, zone.Size.Y - 10), CFrame.new(zc.X, 0.3, zc.Z), zone.GroundColor:Lerp(accent, 0.18), groundMat)
 		-- meadow seams: thin darker grooves dividing the field into plots
 		for gx = -40, 40, 20 do
 			local seam = mkPart(field, "MeadowSeam", Vector3.new(0.35, 0.22, zone.Size.Y - 8), CFrame.new(zc.X + gx, 0.32, zc.Z), zone.GroundColor:Lerp(Color3.fromRGB(0, 0, 0), 0.16), groundMat)
 			seam.CanCollide = false
 		end
-		-- portal pads (visual circles where portals like to open)
-		for i = 1, 8 do
-			local px = zc.X + ((i * 37) % 90) - 45
-			local pz = zc.Z + ((i * 23) % 36) - 18
-			local pad = mkPart(field, "SpawnPad", Vector3.new(5, 0.25, 5), CFrame.new(px, 0.42, pz), neon, Enum.Material.Neon)
-			pad.Shape = Enum.PartType.Cylinder
-			pad.Transparency = 0.45
-			pad.CanCollide = false
-		end
-		-- inner glow ring in the richest zone
-		if zi >= 3 then
-			for _, seg in ipairs({
-				{ Vector3.new(70, 0.3, 0.6), CFrame.new(zc.X, 0.42, zc.Z - 17) },
-				{ Vector3.new(70, 0.3, 0.6), CFrame.new(zc.X, 0.42, zc.Z + 17) },
-				{ Vector3.new(0.6, 0.3, 34), CFrame.new(zc.X - 35, 0.42, zc.Z) },
-				{ Vector3.new(0.6, 0.3, 34), CFrame.new(zc.X + 35, 0.42, zc.Z) },
-			}) do
-				local linePart = mkPart(field, "InnerRing", seg[1], seg[2], neon, Enum.Material.Neon)
-				linePart.CanCollide = false
-			end
-		end
-		-- corner light pillars (2 in zone 1, 4 from zone 2 up)
+		-- corner pillars (2 in zone 1, 4 from zone 2 up)
 		local pillarSpots = { { -52, -17 }, { 52, 17 } }
 		if zi >= 2 then
 			pillarSpots[#pillarSpots + 1] = { 52, -17 }
@@ -598,35 +525,26 @@ function WorldBuilder.Build()
 		end
 		for _, spot in ipairs(pillarSpots) do
 			mkPart(field, "Pillar", Vector3.new(1.2, 10, 1.2), CFrame.new(zc.X + spot[1], 5, zc.Z + spot[2]), Color3.fromRGB(228, 205, 160), Enum.Material.Wood)
-			local core = mkPart(field, "PillarCore", Vector3.new(0.55, 9.2, 0.55), CFrame.new(zc.X + spot[1], 5, zc.Z + spot[2]), neon, Enum.Material.Neon)
+			local core = mkPart(field, "PillarCore", Vector3.new(0.55, 9.2, 0.55), CFrame.new(zc.X + spot[1], 5, zc.Z + spot[2]), accent, Enum.Material.SmoothPlastic)
 			core.CanCollide = false
-			local tip = mkPart(field, "PillarTip", Vector3.new(1.5, 1.5, 1.5), CFrame.new(zc.X + spot[1], 10.6, zc.Z + spot[2]), neon, Enum.Material.Neon)
+			local tip = mkPart(field, "PillarTip", Vector3.new(1.5, 1.5, 1.5), CFrame.new(zc.X + spot[1], 10.6, zc.Z + spot[2]), accent, Enum.Material.SmoothPlastic)
 			tip.Shape = Enum.PartType.Ball
 			tip.CanCollide = false
-			if zi == 1 then
-				-- the free field's pillars throw real light pools
-				local light = Instance.new("PointLight")
-				light.Name = "PillarGlow"
-				light.Color = neon
-				light.Range = 15
-				light.Brightness = 0.7
-				light.Parent = tip
-			end
 		end
 		-- toy crates stacked near the edges (more in higher tiers)
 		for i = 1, 2 + zi do
 			local cx = zc.X + ((i * 41 + zi * 17) % 96) - 48
 			local cz = zc.Z + ((i * 29 + zi * 11) % 40) - 20
 			mkPart(field, "ToyCrate", Vector3.new(3.4, 3.4, 3.4), CFrame.new(cx, 2, cz) * CFrame.Angles(0, math.rad(i * 27), 0), CANDY_COLORS[((i + zi - 1) % #CANDY_COLORS) + 1], Enum.Material.SmoothPlastic)
-			local strip = mkPart(field, "CrateStrip", Vector3.new(3.5, 0.4, 3.5), CFrame.new(cx, 3.1, cz) * CFrame.Angles(0, math.rad(i * 27), 0), neon, Enum.Material.Neon)
+			local strip = mkPart(field, "CrateStrip", Vector3.new(3.5, 0.4, 3.5), CFrame.new(cx, 3.1, cz) * CFrame.Angles(0, math.rad(i * 27), 0), accent, Enum.Material.SmoothPlastic)
 			strip.CanCollide = false
 		end
 		-- board at the field entrance naming the tier
 		local _, zoneTitle = board(field, "ZoneBoard", Vector3.new(16, 4.5, 0.5), CFrame.new(zc.X + 16, 6.5, zc.Z + zone.Size.Y / 2 + 3) * CFrame.Angles(0, math.rad(180), 0),
-			zone.Name:upper(), "ZONE " .. zi .. " — portals open here!", neon, CREAM)
+			zone.Name:upper(), "ZONE " .. zi .. " — brainrots wander here!", accent, CREAM)
 		zoneTitle.TextTransparency = 0.05
 		-- perimeter fence with a gap on the path (x in [-7,7]) on both z sides:
-		-- wooden posts, a glowing top rail in the zone colour
+		-- wooden posts, a top rail in the zone's accent colour
 		local fx, fz = zone.Size.X / 2, zone.Size.Y / 2
 		local fenceColor = Color3.fromRGB(150, 105, 64)
 		for _, sideZ in ipairs({ zc.Z - fz, zc.Z + fz }) do
@@ -635,9 +553,9 @@ function WorldBuilder.Build()
 					mkPart(field, "FencePost", Vector3.new(0.7, 2.6, 0.7), CFrame.new(zc.X + x, 1.3, sideZ), fenceColor, Enum.Material.Wood)
 				end
 			end
-			local railL = mkPart(field, "FenceRailL", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X - (fx + 8) / 2 - 0, 2.2, sideZ), neon, Enum.Material.Neon)
+			local railL = mkPart(field, "FenceRailL", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X - (fx + 8) / 2 - 0, 2.2, sideZ), accent, Enum.Material.SmoothPlastic)
 			railL.CanCollide = false
-			local railR = mkPart(field, "FenceRailR", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X + (fx + 8) / 2, 2.2, sideZ), neon, Enum.Material.Neon)
+			local railR = mkPart(field, "FenceRailR", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X + (fx + 8) / 2, 2.2, sideZ), accent, Enum.Material.SmoothPlastic)
 			railR.CanCollide = false
 			mkPart(field, "FenceRailLowL", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X - (fx + 8) / 2 - 0, 1.1, sideZ), fenceColor, Enum.Material.Wood)
 			mkPart(field, "FenceRailLowR", Vector3.new(fx - 8, 0.4, 0.4), CFrame.new(zc.X + (fx + 8) / 2, 1.1, sideZ), fenceColor, Enum.Material.Wood)
@@ -646,7 +564,7 @@ function WorldBuilder.Build()
 			for z = -fz, fz, 10 do
 				mkPart(field, "FencePost", Vector3.new(0.7, 2.6, 0.7), CFrame.new(sideX, 1.3, zc.Z + z), fenceColor, Enum.Material.Wood)
 			end
-			local rail = mkPart(field, "FenceRail", Vector3.new(0.4, 0.4, zone.Size.Y), CFrame.new(sideX, 2.2, zc.Z), neon, Enum.Material.Neon)
+			local rail = mkPart(field, "FenceRail", Vector3.new(0.4, 0.4, zone.Size.Y), CFrame.new(sideX, 2.2, zc.Z), accent, Enum.Material.SmoothPlastic)
 			rail.CanCollide = false
 			mkPart(field, "FenceRailLow", Vector3.new(0.4, 0.4, zone.Size.Y), CFrame.new(sideX, 1.1, zc.Z), fenceColor, Enum.Material.Wood)
 		end
@@ -665,10 +583,10 @@ function WorldBuilder.Build()
 		mkPart(gate, "PostR", Vector3.new(2.2, 13, 2.2), CFrame.new(8, 6.5, gateZ), Color3.fromRGB(228, 205, 160), Enum.Material.Wood)
 		board(gate, "GateSign", Vector3.new(21, 5.5, 1), CFrame.new(0, 14.5, gateZ) * CFrame.Angles(0, math.rad(180), 0),
 			"🔒 " .. zone.Name:upper(), "Unlock for $" .. Util.FormatInt(zone.Price), Color3.fromRGB(176, 124, 16), CREAM)
-		local wall = mkPart(gate, "Barrier", Vector3.new(124, 9, 1), CFrame.new(0, 4.5, gateZ), zone.NeonColor, Enum.Material.ForceField)
+		local wall = mkPart(gate, "Barrier", Vector3.new(124, 9, 1), CFrame.new(0, 4.5, gateZ), zone.AccentColor, Enum.Material.ForceField)
 		wall.Transparency = 0.45
 		wall.CanCollide = false
-		local pad = mkPart(gate, "GatePad", Vector3.new(7, 0.5, 7), CFrame.new(0, 0.35, gateZ + 7), Color3.fromRGB(255, 196, 66), Enum.Material.Neon)
+		local pad = mkPart(gate, "GatePad", Vector3.new(7, 0.5, 7), CFrame.new(0, 0.35, gateZ + 7), Color3.fromRGB(255, 196, 66), Enum.Material.SmoothPlastic)
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "UnlockPrompt"
 		prompt.ActionText = "Unlock " .. zone.Name
@@ -684,12 +602,12 @@ function WorldBuilder.Build()
 	for i, rarity in ipairs(Config.Rarities) do
 		local x = (i - 3) * 7
 		mkPart(root, "GemPost", Vector3.new(1.4, 6 + i * 0.7, 1.4), CFrame.new(x, (6 + i * 0.7) / 2, archZ), Color3.fromRGB(210, 190, 155), Enum.Material.Wood)
-		local gem = mkPart(root, "Gem", Vector3.new(2.2, 2.2, 2.2), CFrame.new(x, 7 + i * 0.7, archZ), rarity.Color, Enum.Material.Neon)
+		local gem = mkPart(root, "Gem", Vector3.new(2.2, 2.2, 2.2), CFrame.new(x, 7 + i * 0.7, archZ), rarity.Color, Enum.Material.SmoothPlastic)
 		gem.Shape = Enum.PartType.Ball
 		gem.CanCollide = false
 	end
 	board(root, "FieldsSign", Vector3.new(30, 5, 1), CFrame.new(0, 13.5, archZ) * CFrame.Angles(0, math.rad(180), 0),
-		"🧠 BRAINROT BASE TYCOON", "Portals open in the fields — buy a brainrot before it sinks away!", Color3.fromRGB(176, 124, 16), CREAM)
+		"🧠 BRAINROT BASE TYCOON", "Brainrots wander the fields — buy one before it wanders away!", Color3.fromRGB(176, 124, 16), CREAM)
 
 	-- eight bases in two tight columns flanking the field strip, their
 	-- fronts an 8-stud walk from the fields, ringing the central plaza
@@ -774,7 +692,7 @@ function WorldBuilder.Build()
 	for z = 16, -200, -36 do
 		for _, x in ipairs({ -8.5, 8.5 }) do
 			mkPart(root, "PathLamp", Vector3.new(0.45, 5, 0.45), CFrame.new(x, 2.5, z), Color3.fromRGB(150, 105, 64), Enum.Material.Wood)
-			local bulb = mkPart(root, "PathLampBulb", Vector3.new(1, 1, 1), CFrame.new(x, 5.4, z), Color3.fromRGB(255, 236, 170), Enum.Material.Neon)
+			local bulb = mkPart(root, "PathLampBulb", Vector3.new(1, 1, 1), CFrame.new(x, 5.4, z), Color3.fromRGB(255, 236, 170), Enum.Material.SmoothPlastic)
 			bulb.Shape = Enum.PartType.Ball
 			bulb.CanCollide = false
 		end

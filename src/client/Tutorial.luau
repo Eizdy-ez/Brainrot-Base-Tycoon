@@ -60,7 +60,7 @@ function Tutorial.Start(c, gui)
 	arrow.Shape = Enum.PartType.Ball
 	arrow.Size = Vector3.new(1.7, 1.7, 1.7)
 	arrow.Color = Color3.fromRGB(255, 170, 40)
-	arrow.Material = Enum.Material.Neon
+	arrow.Material = Enum.Material.SmoothPlastic
 	arrow.Anchored = true
 	arrow.CanCollide = false
 	arrow.CanQuery = false

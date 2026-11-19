@@ -13,6 +13,9 @@ local Hud = {}
 local ctx
 local cashLabel, incomeLabel, pendingLabel, rebirthLabel, carryLabel
 local toastHolder, bannerFrame, bannerTitle, bannerSub
+local deltaLabel
+local lastCash = nil
+local deltaToken = 0
 
 local KIND_COLORS = {
 	Success = Color3.fromRGB(64, 220, 110),
@@ -60,22 +63,54 @@ function Hud.Banner(title, sub, color, duration)
 	end)
 end
 
+-- Cash delta floater: every time the cash total actually moves, a
+-- "+$X" (green, income collected) or "-$X" (red, a purchase) drifts
+-- up from under the money bar and fades — gains and spends are felt,
+-- not just silently re-totalled.
+local function showDelta(delta)
+	deltaToken += 1
+	local myToken = deltaToken
+	deltaLabel.Text = (delta > 0 and "+$" or "-$") .. Util.FormatInt(math.abs(delta))
+	deltaLabel.TextColor3 = delta > 0 and Color3.fromRGB(110, 255, 140) or Color3.fromRGB(255, 100, 100)
+	deltaLabel.Position = UDim2.new(0.5, -268, 0, 66)
+	deltaLabel.TextTransparency = 0
+	deltaLabel.TextStrokeTransparency = 0.35
+	deltaLabel.Visible = true
+	local tween = TweenService:Create(deltaLabel, TweenInfo.new(1.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+		{ Position = UDim2.new(0.5, -268, 0, 40), TextTransparency = 1, TextStrokeTransparency = 1 })
+	tween:Play()
+	tween.Completed:Connect(function()
+		if deltaToken == myToken then
+			deltaLabel.Visible = false
+		end
+	end)
+end
+
 function Hud.Update(state)
 	cashLabel.Text = "💰 $" .. Util.FormatInt(state.Cash)
 	incomeLabel.Text = "⚡ $" .. Util.FormatCash(state.IncomePerSec) .. "/s"
 	pendingLabel.Text = "🏦 $" .. Util.FormatInt(state.Pending) .. " waiting"
 	rebirthLabel.Text = state.Rebirths > 0 and ("🌟 x" .. string.format("%.1f", state.IncomeMultiplier)) or ""
 	carryLabel.Text = "🎒 " .. state.CarryCount .. "/" .. state.CarryCapacity
+	if lastCash ~= nil and state.Cash ~= lastCash then
+		showDelta(state.Cash - lastCash)
+	end
+	lastCash = state.Cash
 end
 
 function Hud.Start(c, gui)
 	ctx = c
-	-- money bar
+	-- money bar (cash label deliberately the biggest thing on screen)
 	local bar = UI.Frame(gui, UDim2.new(0, 560, 0, 52), UDim2.new(0.5, -280, 0, 10), Color3.fromRGB(34, 36, 48), 0.08)
-	cashLabel = UI.Label(bar, "💰 $0", UDim2.new(0, 170, 1, 0), UDim2.new(0, 12, 0, 0), { TextSize = 21, Color = Color3.fromRGB(140, 255, 160) })
-	incomeLabel = UI.Label(bar, "⚡ $0/s", UDim2.new(0, 130, 1, 0), UDim2.new(0, 182, 0, 0), { TextSize = 17, Color = Color3.fromRGB(255, 224, 120) })
-	pendingLabel = UI.Label(bar, "🏦 $0 waiting", UDim2.new(0, 160, 1, 0), UDim2.new(0, 316, 0, 0), { TextSize = 15, Color = Color3.fromRGB(170, 210, 255) })
-	rebirthLabel = UI.Label(bar, "", UDim2.new(0, 70, 1, 0), UDim2.new(0, 480, 0, 0), { TextSize = 17, Color = Color3.fromRGB(255, 150, 210) })
+	cashLabel = UI.Label(bar, "💰 $0", UDim2.new(0, 215, 1, 0), UDim2.new(0, 12, 0, 0), { TextSize = 27, Color = Color3.fromRGB(140, 255, 160) })
+	incomeLabel = UI.Label(bar, "⚡ $0/s", UDim2.new(0, 118, 1, 0), UDim2.new(0, 232, 0, 0), { TextSize = 16, Color = Color3.fromRGB(255, 224, 120) })
+	pendingLabel = UI.Label(bar, "🏦 $0 waiting", UDim2.new(0, 138, 1, 0), UDim2.new(0, 356, 0, 0), { TextSize = 14, Color = Color3.fromRGB(170, 210, 255) })
+	rebirthLabel = UI.Label(bar, "", UDim2.new(0, 54, 1, 0), UDim2.new(0, 500, 0, 0), { TextSize = 16, Color = Color3.fromRGB(255, 150, 210) })
+
+	-- cash delta floater (sits just under the money bar's left edge)
+	deltaLabel = UI.Label(gui, "", UDim2.new(0, 260, 0, 32), UDim2.new(0.5, -268, 0, 66), { TextSize = 23, Stroke = true })
+	deltaLabel.BackgroundTransparency = 1
+	deltaLabel.Visible = false
 
 	-- menu buttons (right side)
 	local buttons = Instance.new("Frame")
