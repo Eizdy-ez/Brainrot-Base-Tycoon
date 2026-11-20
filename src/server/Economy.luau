@@ -1,6 +1,7 @@
 -- Economy.luau — the money heartbeat: every second each displayed brainrot
--- pays its income (times the owner's rebirth multiplier) into the base's
--- pending pool; stepping on the collect pad claims the pool as cash.
+-- pays its income into the base's pending pool; stepping on the collect
+-- pad claims the pool as cash. (The old rebirth multiplier is permanently
+-- x1.0 since the Round 9 reset rework — Rebirths stays 0.)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -57,6 +58,9 @@ function Economy.Start(c)
 							local after = math.floor(base.Pending)
 							if after ~= before then
 								base.CollectLabel.Text = "COLLECT\n$" .. Util.FormatInt(after)
+								-- keep the HUD's 🏠 waiting segment live:
+								-- it reads Pending from the state snapshot
+								ctx.Data.PushState(owner, ctx)
 							end
 						end
 					end

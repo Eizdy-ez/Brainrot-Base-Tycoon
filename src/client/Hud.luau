@@ -12,7 +12,7 @@ local UI = require(script.Parent:WaitForChild("UIBuilder"))
 
 local Hud = {}
 local ctx
-local cashLabel, incomeLabel, pendingLabel, rebirthLabel, carryLabel
+local cashLabel, incomeLabel, pendingLabel, carryLabel
 local toastHolder, bannerFrame, bannerTitle, bannerSub
 local rebirthBackdrop, rebirthDialog
 local deltaLabel
@@ -74,12 +74,12 @@ local function showDelta(delta)
 	local myToken = deltaToken
 	deltaLabel.Text = (delta > 0 and "+$" or "-$") .. Util.FormatInt(math.abs(delta))
 	deltaLabel.TextColor3 = delta > 0 and Color3.fromRGB(110, 255, 140) or Color3.fromRGB(255, 100, 100)
-	deltaLabel.Position = UDim2.new(0.5, -268, 0, 66)
+	deltaLabel.Position = UDim2.new(0.5, -284, 0, 72)
 	deltaLabel.TextTransparency = 0
 	deltaLabel.TextStrokeTransparency = 0.35
 	deltaLabel.Visible = true
 	local tween = TweenService:Create(deltaLabel, TweenInfo.new(1.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-		{ Position = UDim2.new(0.5, -268, 0, 40), TextTransparency = 1, TextStrokeTransparency = 1 })
+		{ Position = UDim2.new(0.5, -284, 0, 46), TextTransparency = 1, TextStrokeTransparency = 1 })
 	tween:Play()
 	tween.Completed:Connect(function()
 		if deltaToken == myToken then
@@ -91,8 +91,7 @@ end
 function Hud.Update(state)
 	cashLabel.Text = "💰 $" .. Util.FormatInt(state.Cash)
 	incomeLabel.Text = "⚡ $" .. Util.FormatCash(state.IncomePerSec) .. "/s"
-	pendingLabel.Text = "🏦 $" .. Util.FormatInt(state.Pending) .. " waiting"
-	rebirthLabel.Text = state.Rebirths > 0 and ("🌟 x" .. string.format("%.1f", state.IncomeMultiplier)) or ""
+	pendingLabel.Text = "🏠 $" .. Util.FormatInt(state.Pending) .. " waiting"
 	carryLabel.Text = "🎒 " .. state.CarryCount .. "/" .. state.CarryCapacity
 	if lastCash ~= nil and state.Cash ~= lastCash then
 		showDelta(state.Cash - lastCash)
@@ -102,15 +101,19 @@ end
 
 function Hud.Start(c, gui)
 	ctx = c
-	-- money bar (cash label deliberately the biggest thing on screen)
-	local bar = UI.Frame(gui, UDim2.new(0, 560, 0, 52), UDim2.new(0.5, -280, 0, 10), Color3.fromRGB(34, 36, 48), 0.08)
-	cashLabel = UI.Label(bar, "💰 $0", UDim2.new(0, 215, 1, 0), UDim2.new(0, 12, 0, 0), { TextSize = 27, Color = Color3.fromRGB(140, 255, 160) })
-	incomeLabel = UI.Label(bar, "⚡ $0/s", UDim2.new(0, 118, 1, 0), UDim2.new(0, 232, 0, 0), { TextSize = 16, Color = Color3.fromRGB(255, 224, 120) })
-	pendingLabel = UI.Label(bar, "🏦 $0 waiting", UDim2.new(0, 138, 1, 0), UDim2.new(0, 356, 0, 0), { TextSize = 14, Color = Color3.fromRGB(170, 210, 255) })
-	rebirthLabel = UI.Label(bar, "", UDim2.new(0, 54, 1, 0), UDim2.new(0, 500, 0, 0), { TextSize = 16, Color = Color3.fromRGB(255, 150, 210) })
+	-- money bar (Round 9, styled after the user's reference shot):
+	-- ONE dark rounded bar with three segments side by side —
+	-- money-bag cash in bold green, lightning income/s in bold
+	-- yellow, house pending in light blue. Every balance display
+	-- in the game reads from this bar; values come straight from
+	-- the server state snapshot (Cash / IncomePerSec / Pending).
+	local bar = UI.Frame(gui, UDim2.new(0, 600, 0, 54), UDim2.new(0.5, -300, 0, 10), Color3.fromRGB(24, 26, 36), 0.05)
+	cashLabel = UI.Label(bar, "💰 $50", UDim2.new(0, 196, 1, 0), UDim2.new(0, 16, 0, 0), { TextSize = 26, Color = Color3.fromRGB(110, 255, 140) })
+	incomeLabel = UI.Label(bar, "⚡ $0/s", UDim2.new(0, 168, 1, 0), UDim2.new(0, 224, 0, 0), { TextSize = 20, Color = Color3.fromRGB(255, 200, 60), Align = Enum.TextXAlignment.Center })
+	pendingLabel = UI.Label(bar, "🏠 $0 waiting", UDim2.new(0, 180, 1, 0), UDim2.new(0, 404, 0, 0), { TextSize = 18, Color = Color3.fromRGB(170, 215, 255), Align = Enum.TextXAlignment.Right })
 
 	-- cash delta floater (sits just under the money bar's left edge)
-	deltaLabel = UI.Label(gui, "", UDim2.new(0, 260, 0, 32), UDim2.new(0.5, -268, 0, 66), { TextSize = 23, Stroke = true })
+	deltaLabel = UI.Label(gui, "", UDim2.new(0, 260, 0, 32), UDim2.new(0.5, -284, 0, 72), { TextSize = 23, Stroke = true })
 	deltaLabel.BackgroundTransparency = 1
 	deltaLabel.Visible = false
 
