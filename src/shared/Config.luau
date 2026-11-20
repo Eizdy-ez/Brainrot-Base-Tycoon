@@ -37,18 +37,18 @@ Config.Mutations = {
 --====================================================================--
 Config.Brainrots = {
 	-- Common (starter band: flat prices a $50 wallet can always pay)
-	{ Name = "Toastino",        Rarity = 1, Income = 1,  Price = 25, Body = Color3.fromRGB(196, 178, 160), Accent = Color3.fromRGB(255, 140, 40),  Accessory = { "ToasterHat" } },
+	{ Name = "Toastino",        Rarity = 1, Income = 1,  Price = 25, Body = Color3.fromRGB(196, 178, 160), Accent = Color3.fromRGB(255, 140, 40),  Accessory = { "ToasterHead" }, NoHead = true },
 	{ Name = "Splashound",      Rarity = 1, Income = 2,  Price = 35, Body = Color3.fromRGB(96, 178, 240),  Accent = Color3.fromRGB(240, 248, 255), Accessory = { "DogEars", "Snout", "WagTail" } },
 	{ Name = "Moppina",         Rarity = 1, Income = 2,  Price = 40, Body = Color3.fromRGB(226, 208, 170), Accent = Color3.fromRGB(70, 200, 190),  Accessory = { "MopHair" } },
 	{ Name = "Socktopus",       Rarity = 1, Income = 3,  Price = 50, Body = Color3.fromRGB(178, 156, 230), Accent = Color3.fromRGB(255, 170, 200), Accessory = { "Tentacles" } },
 	-- Rare
-	{ Name = "Lampadina",       Rarity = 2, Income = 8,  Body = Color3.fromRGB(64, 150, 150),  Accent = Color3.fromRGB(255, 214, 110), Accessory = { "LampHat" } },
-	{ Name = "Biscotto Bot",    Rarity = 2, Income = 10, Body = Color3.fromRGB(216, 164, 94),  Accent = Color3.fromRGB(96, 54, 30),    Accessory = { "CookieHat", "CookieDisc", "ChocChips", "Antenna" } },
-	{ Name = "Pumpkowl",        Rarity = 2, Income = 12, Body = Color3.fromRGB(240, 132, 40),  Accent = Color3.fromRGB(110, 76, 40),   Accessory = { "PumpkinHat", "PumpkinRibs", "Wings", "EarTufts" } },
+	{ Name = "Lampadina",       Rarity = 2, Income = 8,  Body = Color3.fromRGB(64, 150, 150),  Accent = Color3.fromRGB(255, 214, 110), Accessory = { "LampHead" }, NoHead = true },
+	{ Name = "Biscotto Bot",    Rarity = 2, Income = 10, Body = Color3.fromRGB(216, 164, 94),  Accent = Color3.fromRGB(96, 54, 30),    Accessory = { "CookieHead", "CookieDisc", "ChocChips", "Antenna" }, NoHead = true },
+	{ Name = "Pumpkowl",        Rarity = 2, Income = 12, Body = Color3.fromRGB(240, 132, 40),  Accent = Color3.fromRGB(110, 76, 40),   Accessory = { "PumpkinHead", "PumpkinRibs", "Wings", "EarTufts" }, NoHead = true },
 	{ Name = "Raviolibot",      Rarity = 2, Income = 14, Body = Color3.fromRGB(246, 228, 178), Accent = Color3.fromRGB(170, 178, 190), Accessory = { "ForkAntenna", "CrimpEdge", "HeadFrame" } },
 	-- Epic
 	{ Name = "Disco Fungo",     Rarity = 3, Income = 45, Body = Color3.fromRGB(200, 60, 80),   Accent = Color3.fromRGB(210, 214, 224), Accessory = { "DiscoBall", "Headphones" } },
-	{ Name = "Capitano Teapot", Rarity = 3, Income = 55, Body = Color3.fromRGB(52, 66, 110),   Accent = Color3.fromRGB(255, 196, 66),  Accessory = { "TeapotHat" } },
+	{ Name = "Capitano Teapot", Rarity = 3, Income = 55, Body = Color3.fromRGB(52, 66, 110),   Accent = Color3.fromRGB(255, 196, 66),  Accessory = { "TeapotHead", "PirateHat" }, NoHead = true },
 	{ Name = "Astro Jelly",     Rarity = 3, Income = 65, Body = Color3.fromRGB(255, 158, 205), Accent = Color3.fromRGB(96, 220, 255),  Accessory = { "JellyDome", "JellyTentacles", "Backpack" } },
 	{ Name = "Vroom Broom",     Rarity = 3, Income = 75, Body = Color3.fromRGB(150, 104, 58),  Accent = Color3.fromRGB(246, 214, 110), Accessory = { "BroomStick", "Bristles", "Wheels", "Shades" } },
 	{ Name = "Satelerror",      Rarity = 3, Income = 85, Body = Color3.fromRGB(112, 124, 148), Accent = Color3.fromRGB(96, 225, 255),  Accessory = { "TVHead", "SatDish", "SolarPanels", "SparkCoils" }, NoHead = true },

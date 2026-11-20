@@ -40,6 +40,23 @@
 -- whole figure reads head-face, arms, legs — a character, not a
 -- box with a sticker on it.
 --
+-- OWN-DESIGN pass (Round 10): the play test showed the cast still
+-- read as ONE shared figure — players pointed at a wild cast
+-- member (a standard head wearing a crown) and called it "the
+-- NPC", because the signature objects had shrunk into hats. The
+-- bandit himself was never the problem: BuildBandit is
+-- byte-identical to Round 8 (no face parts, black mask band,
+-- beanie, sack) and stays exactly so. So the six object-head
+-- designs are HEADS again — Toastino's toaster, Lampadina's
+-- lampshade, Biscotto Bot's cookie disc, Pumpkowl's pumpkin,
+-- Capitano Teapot's teapot, Satelerror's monitor — each carrying
+-- the Round-9 big-face standard on its own face plane (white
+-- eyeballs spanning >= 60% of the head's width, eye height
+-- >= 0.5 studs at scale 1, brows, a wide mouth). The
+-- standard-head characters keep the Round-9 cartoon face plus
+-- their own ears, snouts, caps and domes. Arms, hands, trouser
+-- legs and the bandit are exactly as Round 9 left them.
+--
 -- Animation is pure code: the head rides a Motor6D "neck" and the arms
 -- hang on Motor6D shoulders, and Factory.Pose swings them — a gentle
 -- idle sway with a tilting head, and a proper arm-swing walk cycle
@@ -206,37 +223,61 @@ local AccessoryBuilders = {}
 -- Head builders (hadd space: origin = head centre, face toward -Z)
 --====================================================================--
 
-function AccessoryBuilders.ToasterHat(model, body, def, add, hadd, A)
-	-- the toaster is a HAT now (Round 9): a little chrome toaster
-	-- worn on top of the character head, two toast slices popping
-	-- out of its slots and the lever on its side — the big cartoon
-	-- face lives on the head underneath (buildFace)
-	hadd("ToasterHat", Vector3.new(1.12, 0.6, 0.98), CFrame.new(0, 0.98, 0), Color3.fromRGB(196, 200, 208), Enum.Material.Metal)
-	hadd("ToastSlot", Vector3.new(0.92, 0.1, 0.6), CFrame.new(0, 1.3, 0), BLACK)
-	hadd("ToastL", Vector3.new(0.42, 0.5, 0.6), CFrame.new(-0.24, 1.48, 0), Color3.fromRGB(246, 208, 140))
-	hadd("ToastR", Vector3.new(0.42, 0.4, 0.6), CFrame.new(0.24, 1.43, 0), Color3.fromRGB(240, 196, 128))
-	hadd("LeverPost", Vector3.new(0.2, 0.1, 0.1), CFrame.new(0.62, 1.06, 0), Color3.fromRGB(120, 124, 132), Enum.Material.Metal)
-	ball(hadd("LeverKnob", Vector3.new(0.22, 0.22, 0.22), CFrame.new(0.74, 1.06, 0), def.Accent, Enum.Material.Neon))
+function AccessoryBuilders.ToasterHead(model, body, def, add, hadd, A)
+	-- the sheet: the head IS a chrome toaster (its own design is
+	-- back, Round 10), its CREAM front panel carrying the Round-9
+	-- big face — white eyeballs spanning 1.26 studs = 81% of the
+	-- toaster's width, big pupils, brows, a wide open mouth — with
+	-- two toast slices popping out of the top and the lever on its
+	-- side
+	hadd("Toaster", Vector3.new(1.55, 1.28, 1.38), CFrame.new(0, 0.02, 0), Color3.fromRGB(196, 200, 208), Enum.Material.Metal)
+	hadd("FacePanel", Vector3.new(1.3, 1.04, 0.1), CFrame.new(0, 0.0, -0.71), Color3.fromRGB(246, 238, 220))
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		ball(hadd("Eyeball" .. tag, Vector3.new(0.56, 0.78, 0.24), CFrame.new(side * 0.35, 0.14, -0.78), WHITE))
+		ball(hadd("Pupil" .. tag, Vector3.new(0.34, 0.5, 0.14), CFrame.new(side * 0.35, 0.1, -0.89), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.13, 0.16, 0.07), CFrame.new(side * 0.35 - 0.08, 0.24, -0.95), WHITE, Enum.Material.Neon))
+		hadd("Brow" .. tag, Vector3.new(0.52, 0.13, 0.09), CFrame.new(side * 0.35, 0.56, -0.79) * CFrame.Angles(0, 0, side * 0.12), INK)
+	end
+	ball(hadd("Mouth", Vector3.new(0.62, 0.38, 0.16), CFrame.new(0, -0.36, -0.79), INK))
+	ball(hadd("Tongue", Vector3.new(0.36, 0.15, 0.08), CFrame.new(0, -0.46, -0.85), Color3.fromRGB(255, 130, 160)))
+	hadd("ToastSlot", Vector3.new(1.15, 0.12, 0.75), CFrame.new(0, 0.68, 0), BLACK)
+	hadd("ToastL", Vector3.new(0.52, 0.66, 0.78), CFrame.new(-0.3, 0.92, 0), Color3.fromRGB(246, 208, 140))
+	hadd("ToastR", Vector3.new(0.52, 0.52, 0.78), CFrame.new(0.3, 0.85, 0), Color3.fromRGB(240, 196, 128))
+	hadd("LeverPost", Vector3.new(0.26, 0.12, 0.12), CFrame.new(0.86, 0.22, 0), Color3.fromRGB(120, 124, 132), Enum.Material.Metal)
+	ball(hadd("LeverKnob", Vector3.new(0.27, 0.27, 0.27), CFrame.new(0.99, 0.22, 0), def.Accent, Enum.Material.Neon))
 	-- the jumpsuit collar and pockets from the sheet, on the torso
 	add("Collar", Vector3.new(1.5, 0.3, 1.3), CFrame.new(0, A.HalfH - 0.05, 0), Color3.fromRGB(190, 100, 44))
 	add("PocketL", Vector3.new(0.5, 0.55, 0.1), CFrame.new(-0.55, -0.45, -A.HalfD - 0.03), Color3.fromRGB(190, 100, 44))
 	add("PocketR", Vector3.new(0.5, 0.55, 0.1), CFrame.new(0.55, -0.45, -A.HalfD - 0.03), Color3.fromRGB(190, 100, 44))
 end
 
-function AccessoryBuilders.LampHat(model, body, def, add, hadd, A)
-	-- the lampshade is a HAT now (Round 9): a warm glowing BELL
-	-- shade worn on top of the character head, brass rim and finial,
-	-- the bulb glowing at its front lip — the big cartoon face
-	-- lives on the head underneath (buildFace)
-	local flare = hadd("ShadeFlare", Vector3.new(1.6, 0.66, 1.6), CFrame.new(0, 1.0, 0), def.Accent, Enum.Material.Neon)
+function AccessoryBuilders.LampHead(model, body, def, add, hadd, A)
+	-- the sheet: the head IS a BELL lampshade (its own design is
+	-- back, Round 10), glowing warm, the Round-9 big face riding
+	-- its curved front — white eyeballs spanning 1.26 studs = 74%
+	-- of the shade's width, big pupils, brows, a wide open mouth —
+	-- a brass finial on top; the brass stem neck stays on the body
+	-- so the shade can tilt
+	add("Neck", Vector3.new(0.3, 0.75, 0.3), CFrame.new(0, 1.0, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal)
+	local flare = hadd("ShadeFlare", Vector3.new(1.7, 1.0, 1.7), CFrame.new(0, 0.0, 0), def.Accent, Enum.Material.Neon)
 	flare.Shape = Enum.PartType.Cylinder
-	local top = hadd("ShadeTop", Vector3.new(1.15, 0.3, 1.15), CFrame.new(0, 1.36, 0), def.Accent, Enum.Material.Neon)
+	local top = hadd("ShadeTop", Vector3.new(1.3, 0.4, 1.3), CFrame.new(0, 0.62, 0), def.Accent, Enum.Material.Neon)
 	top.Shape = Enum.PartType.Cylinder
-	local rim = hadd("ShadeRim", Vector3.new(1.68, 0.12, 1.68), CFrame.new(0, 0.68, 0), Color3.fromRGB(214, 170, 92), Enum.Material.Metal)
+	local rim = hadd("ShadeRim", Vector3.new(1.78, 0.13, 1.78), CFrame.new(0, -0.48, 0), Color3.fromRGB(214, 170, 92), Enum.Material.Metal)
 	rim.Shape = Enum.PartType.Cylinder
-	hadd("FinialPost", Vector3.new(0.12, 0.2, 0.12), CFrame.new(0, 1.58, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal)
-	ball(hadd("Finial", Vector3.new(0.26, 0.26, 0.26), CFrame.new(0, 1.72, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal))
-	local bulb = ball(hadd("BulbGlow", Vector3.new(0.44, 0.3, 0.44), CFrame.new(0, 0.6, -0.35), WHITE, Enum.Material.Neon))
+	hadd("FinialPost", Vector3.new(0.12, 0.24, 0.12), CFrame.new(0, 0.92, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal)
+	ball(hadd("Finial", Vector3.new(0.28, 0.28, 0.28), CFrame.new(0, 1.08, 0), Color3.fromRGB(196, 160, 90), Enum.Material.Metal))
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		ball(hadd("Eyeball" .. tag, Vector3.new(0.56, 0.78, 0.24), CFrame.new(side * 0.35, 0.02, -0.8), WHITE))
+		ball(hadd("Pupil" .. tag, Vector3.new(0.34, 0.5, 0.14), CFrame.new(side * 0.35, -0.02, -0.91), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.13, 0.16, 0.07), CFrame.new(side * 0.35 - 0.08, 0.12, -0.97), WHITE, Enum.Material.Neon))
+		hadd("Brow" .. tag, Vector3.new(0.52, 0.13, 0.09), CFrame.new(side * 0.35, 0.44, -0.79) * CFrame.Angles(0, 0, side * 0.12), INK)
+	end
+	ball(hadd("Mouth", Vector3.new(0.62, 0.38, 0.16), CFrame.new(0, -0.34, -0.86), INK))
+	ball(hadd("Tongue", Vector3.new(0.36, 0.15, 0.08), CFrame.new(0, -0.44, -0.92), Color3.fromRGB(255, 130, 160)))
+	local bulb = ball(hadd("BulbGlow", Vector3.new(0.6, 0.36, 0.6), CFrame.new(0, -0.62, 0), WHITE, Enum.Material.Neon))
 	local light = Instance.new("PointLight")
 	light.Name = "LampGlow"
 	light.Color = Color3.fromRGB(255, 214, 140)
@@ -249,53 +290,90 @@ function AccessoryBuilders.LampHat(model, body, def, add, hadd, A)
 	end
 end
 
-function AccessoryBuilders.TeapotHat(model, body, def, add, hadd, A)
-	-- the teapot is a HAT now (Round 9): a little round glass
-	-- teapot perched on top of the character head — spout forward,
-	-- handle at the side, golden lid knob — the big cartoon face
-	-- lives on the head underneath (buildFace)
-	local pot = ball(hadd("TeapotHat", Vector3.new(1.02, 0.82, 0.98), CFrame.new(0, 1.1, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass))
+function AccessoryBuilders.TeapotHead(model, body, def, add, hadd, A)
+	-- the sheet: the head IS a round glass teapot (its own design
+	-- is back, Round 10): spout nose, handle ear, golden lid knob —
+	-- and the Round-9 big face on the glass, white eyeballs
+	-- spanning 1.12 studs = 74% of the pot's width, big pupils,
+	-- brows, a wide open mouth; the pirate hat rides on top
+	local pot = ball(hadd("Teapot", Vector3.new(1.52, 1.32, 1.46), CFrame.new(0, 0.04, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass))
 	pot.Transparency = 0.15
-	hadd("Spout", Vector3.new(0.24, 0.24, 0.62), CFrame.new(0, 1.12, -0.68) * CFrame.Angles(math.rad(-32), 0, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass)
-	hadd("Handle", Vector3.new(0.16, 0.56, 0.42), CFrame.new(0.58, 1.16, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass)
-	ball(hadd("LidKnob", Vector3.new(0.3, 0.3, 0.3), CFrame.new(0, 1.58, 0), def.Accent, Enum.Material.Metal))
+	hadd("Spout", Vector3.new(0.3, 0.3, 0.8), CFrame.new(0, 0.0, -0.92) * CFrame.Angles(math.rad(-32), 0, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass)
+	hadd("Handle", Vector3.new(0.2, 0.72, 0.55), CFrame.new(0.85, 0.18, 0), Color3.fromRGB(120, 200, 220), Enum.Material.Glass)
+	ball(hadd("LidKnob", Vector3.new(0.36, 0.36, 0.36), CFrame.new(0, 0.82, 0), def.Accent, Enum.Material.Metal))
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		ball(hadd("Eyeball" .. tag, Vector3.new(0.52, 0.72, 0.22), CFrame.new(side * 0.3, 0.18, -0.68), WHITE))
+		ball(hadd("Pupil" .. tag, Vector3.new(0.31, 0.46, 0.12), CFrame.new(side * 0.3, 0.14, -0.77), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.12, 0.15, 0.07), CFrame.new(side * 0.3 - 0.07, 0.28, -0.82), WHITE, Enum.Material.Neon))
+		hadd("Brow" .. tag, Vector3.new(0.48, 0.12, 0.08), CFrame.new(side * 0.28, 0.58, -0.36) * CFrame.Angles(0, 0, side * 0.12), INK)
+	end
+	ball(hadd("Mouth", Vector3.new(0.6, 0.36, 0.16), CFrame.new(0, -0.4, -0.57), INK))
+	ball(hadd("Tongue", Vector3.new(0.34, 0.14, 0.08), CFrame.new(0, -0.49, -0.63), Color3.fromRGB(255, 130, 160)))
 end
 
-function AccessoryBuilders.CookieHat(model, body, def, add, hadd, A)
-	-- the cookie is a flat CAP now (Round 9): a chocolate-chip disc
-	-- worn on top of the character head, tilted a touch — the big
-	-- cartoon face lives on the head underneath (buildFace); the
-	-- second cookie stays on the chest (CookieDisc, body builder)
-	local disc = hadd("CookieHat", Vector3.new(1.4, 0.36, 1.4), CFrame.new(0, 0.86, 0) * CFrame.Angles(math.rad(-7), 0, 0), def.Body)
+function AccessoryBuilders.PirateHat(model, body, def, add, hadd, A)
+	local brim = hadd("HatBrim", Vector3.new(1.75, 0.16, 1.4), CFrame.new(0, 0.72, 0), BLACK)
+	brim.Shape = Enum.PartType.Cylinder
+	hadd("HatTop", Vector3.new(1.2, 0.45, 1.05), CFrame.new(0, 0.93, 0), BLACK)
+	ball(hadd("Skull", Vector3.new(0.4, 0.4, 0.4), CFrame.new(0, 0.9, -0.52), WHITE))
+end
+
+function AccessoryBuilders.CookieHead(model, body, def, add, hadd, A)
+	-- the sheet: the head IS a flat cookie disc (its own design is
+	-- back, Round 10) — chocolate-chip freckles kept clear of the
+	-- face, and the Round-9 big face on the disc's front: white
+	-- eyeballs spanning 1.24 studs = 82% of the disc's width, big
+	-- pupils, brows, a wide open mouth; the second cookie stays on
+	-- the chest (CookieDisc, body builder)
+	local disc = hadd("CookieHead", Vector3.new(1.52, 0.46, 1.52), CFrame.new(0, 0.03, 0) * CFrame.Angles(math.rad(90), 0, 0), def.Body)
 	disc.Shape = Enum.PartType.Cylinder
-	local chips = { { -0.42, 0.3 }, { 0.45, 0.38 }, { 0.05, -0.42 }, { -0.3, -0.35 }, { 0.38, -0.05 } }
+	local chips = { { -0.52, 0.55 }, { 0.52, 0.58 }, { 0.0, 0.66 }, { -0.6, -0.5 }, { 0.6, -0.52 } }
 	for i, spot in ipairs(chips) do
-		ball(hadd("HatChip" .. i, Vector3.new(0.2, 0.2, 0.2), CFrame.new(spot[1], 1.06, spot[2]), def.Accent))
+		ball(hadd("HeadChip" .. i, Vector3.new(0.22, 0.22, 0.22), CFrame.new(spot[1], spot[2], -0.24), def.Accent))
 	end
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		ball(hadd("Eyeball" .. tag, Vector3.new(0.56, 0.78, 0.18), CFrame.new(side * 0.34, 0.08, -0.27), WHITE))
+		ball(hadd("Pupil" .. tag, Vector3.new(0.34, 0.5, 0.1), CFrame.new(side * 0.34, 0.04, -0.35), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.13, 0.16, 0.07), CFrame.new(side * 0.34 - 0.08, 0.18, -0.4), WHITE, Enum.Material.Neon))
+		hadd("Brow" .. tag, Vector3.new(0.52, 0.13, 0.09), CFrame.new(side * 0.34, 0.52, -0.26) * CFrame.Angles(0, 0, side * 0.12), INK)
+	end
+	ball(hadd("Mouth", Vector3.new(0.6, 0.36, 0.14), CFrame.new(0, -0.48, -0.26), INK))
+	ball(hadd("Tongue", Vector3.new(0.34, 0.14, 0.08), CFrame.new(0, -0.57, -0.31), Color3.fromRGB(255, 130, 160)))
 end
 
-function AccessoryBuilders.PumpkinHat(model, body, def, add, hadd, A)
-	-- the pumpkin is a HELMET now (Round 9): a ribbed pumpkin worn
-	-- over the top of the character head, stem + leaf on top — the
-	-- big cartoon face lives on the head below the pumpkin's rim
-	-- (buildFace); the owl wings and cheek tufts stay
-	ball(hadd("PumpkinHat", Vector3.new(1.34, 1.0, 1.28), CFrame.new(0, 1.02, 0), Color3.fromRGB(245, 150, 55)))
+function AccessoryBuilders.PumpkinHead(model, body, def, add, hadd, A)
+	-- the sheet: the head IS a ribbed pumpkin (its own design is
+	-- back, Round 10), HUGE owl eyes on pale eye discs — the dark
+	-- pupils span 1.24 studs = 82% of the pumpkin's width, the
+	-- discs 1.54 — a little beak, and the stem + leaf on top; the
+	-- owl wings and cheek tufts stay
+	ball(hadd("Pumpkin", Vector3.new(1.52, 1.34, 1.44), CFrame.new(0, 0.03, 0), Color3.fromRGB(245, 150, 55)))
 	for i = -1, 1 do
-		-- each rib hugs the little pumpkin's curved front at its own x
-		local ribZ = -(0.64 * math.sqrt(math.max(1 - (i * 0.38 / 0.67) ^ 2, 0.05)) + 0.03)
-		hadd("HatRib" .. (i + 2), Vector3.new(0.11, 0.88, 0.11), CFrame.new(i * 0.38, 1.02, ribZ), Color3.fromRGB(226, 124, 38))
+		-- each rib hugs the pumpkin's curved front at its own x
+		local ribZ = -(0.72 * math.sqrt(math.max(1 - (i * 0.5 / 0.76) ^ 2, 0.05)) + 0.05)
+		hadd("HeadRib" .. (i + 2), Vector3.new(0.13, 1.24, 0.13), CFrame.new(i * 0.5, 0.03, ribZ), Color3.fromRGB(226, 124, 38))
 	end
-	hadd("Stem", Vector3.new(0.26, 0.4, 0.26), CFrame.new(0, 1.68, 0) * CFrame.Angles(0, 0, math.rad(10)), Color3.fromRGB(84, 140, 60))
-	local leaf = ball(hadd("Leaf", Vector3.new(0.46, 0.14, 0.34), CFrame.new(0.3, 1.62, 0), Color3.fromRGB(96, 160, 70)))
+	for _, side in ipairs({ -1, 1 }) do
+		local tag = side < 0 and "L" or "R"
+		ball(hadd("EyeDisc" .. tag, Vector3.new(0.84, 0.84, 0.2), CFrame.new(side * 0.35, 0.16, -0.62), Color3.fromRGB(252, 214, 150)))
+		ball(hadd("Eye" .. tag, Vector3.new(0.54, 0.54, 0.16), CFrame.new(side * 0.35, 0.16, -0.72), INK))
+		ball(hadd("Glint" .. tag, Vector3.new(0.17, 0.17, 0.07), CFrame.new(side * 0.35 - 0.09, 0.28, -0.79), WHITE, Enum.Material.Neon))
+	end
+	ball(hadd("BeakTop", Vector3.new(0.34, 0.19, 0.28), CFrame.new(0, -0.24, -0.68), Color3.fromRGB(255, 190, 60)))
+	ball(hadd("BeakLow", Vector3.new(0.26, 0.13, 0.22), CFrame.new(0, -0.37, -0.66), Color3.fromRGB(240, 170, 50)))
+	hadd("Stem", Vector3.new(0.28, 0.45, 0.28), CFrame.new(0, 0.85, 0) * CFrame.Angles(0, 0, math.rad(10)), Color3.fromRGB(84, 140, 60))
+	local leaf = ball(hadd("Leaf", Vector3.new(0.5, 0.15, 0.36), CFrame.new(0.32, 0.8, 0), Color3.fromRGB(96, 160, 70)))
 	leaf.Transparency = 0.05
 end
 
 function AccessoryBuilders.TVHead(model, body, def, add, hadd, A)
-	-- the ONE object head that stays (Round 9 exception): a chunky
-	-- monitor worn as the head — but its screen now carries the
-	-- same BIG-face standard as every character head: huge glowing
-	-- cyan eyes spanning ~83% of the screen's width and a wide
-	-- jagged glitch mouth, so the face speaks first here too
+	-- the head IS a chunky monitor (Satelerror's own design), its
+	-- screen carrying the same BIG-face standard as every other
+	-- head: huge glowing cyan eyes spanning ~83% of the screen's
+	-- width and a wide jagged glitch mouth, so the face speaks
+	-- first here too
 	hadd("Monitor", Vector3.new(1.56, 1.3, 1.36), CFrame.new(0, 0.02, 0), Color3.fromRGB(52, 56, 68), Enum.Material.Metal)
 	hadd("Screen", Vector3.new(1.32, 1.06, 0.1), CFrame.new(0, 0.02, -0.7), Color3.fromRGB(10, 14, 22))
 	for _, side in ipairs({ -1, 1 }) do
@@ -382,8 +460,7 @@ end
 
 function AccessoryBuilders.EarTufts(model, body, def, add, hadd, A)
 	-- feathered owl cheek tufts: three fanned slats on each SIDE of
-	-- the head (they lived on top in the pumpkin-head days; the
-	-- pumpkin helmet owns the top now)
+	-- the pumpkin head, hugging its curved cheeks
 	for _, side in ipairs({ -1, 1 }) do
 		local tag = side < 0 and "L" or "R"
 		for j = 0, 2 do
@@ -787,10 +864,12 @@ function Factory.Build(def, mutation)
 	}
 
 	if not def.NoHead then
-		-- the character head: a plain block, the bandit's head, in
-		-- the character's own colour, carrying the BIG cartoon face
-		-- — identity comes from that face plus the hat and costume
-		-- accessories, never from an object skull (Round 9)
+		-- the standard character head: a plain block, the bandit's
+		-- head, in the character's own colour, carrying the BIG
+		-- cartoon face — identity comes from that face plus its
+		-- ears, snouts, caps and costume accessories. The six
+		-- object-head characters (def.NoHead) skip this block:
+		-- their own head builder IS the head (Round 10)
 		hadd("Head", Vector3.new(1.5, 1.3, 1.4), CFrame.new(0, 0, 0), def.Body)
 		buildFace(def, hadd, A)
 	end
