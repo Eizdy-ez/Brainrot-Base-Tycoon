@@ -1,3 +1,4 @@
+-- EventManager — the living world: Gold Rain events and the base-raiding Bandit NPC.
 -- EventManager.luau — the living world: Gold Rain (mutation frenzy)
 -- and the Bandit NPC who sneaks into bases and steals displayed
 -- brainrots unless a player tackles him.

@@ -1,3 +1,4 @@
+-- AudioClient — client audio module: the looping soundtrack and every sound effect.
 -- AudioClient.luau — the game's ears: a looping APM soundtrack that follows
 -- the action (calm main theme, sparkly gold-rain theme)
 -- plus every sound effect, all from the verified ids in Config.Audio.

@@ -1,3 +1,4 @@
+-- UIBuilder — shared widget factory helpers so every client module builds its widgets the same way.
 -- UIBuilder.luau — tiny factory helpers so every client module builds its
 -- widgets the same way: rounded corners, soft strokes, Fredoka type.
 

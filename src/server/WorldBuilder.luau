@@ -1,3 +1,4 @@
+-- WorldBuilder — constructs the whole island from code at server start: plaza, fields, bases and decorations.
 -- WorldBuilder.luau — constructs the whole island from code at server start:
 -- the spawn plaza AT the island centre, three fenced fields
 -- with gates, eight tycoon base plots ringed tight around the centre

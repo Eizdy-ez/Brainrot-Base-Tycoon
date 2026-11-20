@@ -1,3 +1,4 @@
+-- Server bootstrap — creates the remotes, builds the world, starts every manager and routes player actions.
 -- Brainrot Base Tycoon — server bootstrap.
 -- Creates the remotes, builds the world, starts every manager, and routes
 -- player joins/leaves and client actions. All game content lives in the

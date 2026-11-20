@@ -1,3 +1,4 @@
+-- Tutorial — first-loop guide: a hint bar plus a bouncing 3D arrow over the next target.
 -- Tutorial.luau — walks a new tycoon through their first loop: a hint bar
 -- plus a bouncing 3D arrow over the next thing to touch (field, own pad,
 -- collect pad; the upgrade step has no world target since Round 10 —

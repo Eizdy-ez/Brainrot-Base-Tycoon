@@ -1,3 +1,4 @@
+-- Effects — client visual feedback: camera shake, collect bursts, dash FOV kick and gate-barrier hiding.
 -- Effects.luau — client juice: camera shake, the floating "+$" burst
 -- over the collect pad, dash FOV kick, and locally hiding the gate
 -- barriers of zones you personally unlocked.

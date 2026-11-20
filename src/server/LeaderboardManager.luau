@@ -1,3 +1,4 @@
+-- LeaderboardManager — the plaza Cash Kings board: top tycoons by lifetime earnings, refreshed every ten seconds.
 -- LeaderboardManager.luau — keeps the big plaza board honest: the top
 -- tycoons by lifetime earnings, refreshed every ten seconds.
 

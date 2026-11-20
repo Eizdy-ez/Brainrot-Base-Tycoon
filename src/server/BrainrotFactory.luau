@@ -1,3 +1,4 @@
+-- BrainrotFactory — builds every blocky brainrot character from plain Parts and the Config roster data.
 -- BrainrotFactory.luau — builds blocky brainrot characters out of plain
 -- Parts from the data definitions in Config. No external assets: every
 -- character in the roster is an original design standing on the same

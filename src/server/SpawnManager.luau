@@ -1,3 +1,4 @@
+-- SpawnManager — keeps the three fields stocked with wandering wild brainrots, ready to buy.
 -- SpawnManager.luau — keeps the three fields stocked with wild
 -- brainrots. A wild brainrot simply APPEARS standing on the field,
 -- already walking: it wanders its zone for a few seconds with a Buy

@@ -1,3 +1,4 @@
+-- QuestUI — the quest tracker card: current quest, live progress bar and its cash reward.
 -- QuestUI.luau — the quest tracker card: current quest, live progress bar,
 -- and its cash reward. Fed entirely by the server state snapshot.
 

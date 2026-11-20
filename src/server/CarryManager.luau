@@ -1,3 +1,4 @@
+-- CarryManager — the hands of the game: buying, carrying, placing and stealing brainrots.
 -- CarryManager.luau — the hands of the game: buying wild brainrots via
 -- their Buy prompts, the lucky-buy evolution roll, carrying them
 -- stacked on the head, placing them on base pads, stealing from unlocked

@@ -1,3 +1,4 @@
+-- Game (client) — client bootstrap: builds the ScreenGui, starts the UI modules and routes server events.
 -- Brainrot Base Tycoon — client bootstrap.
 -- Builds the ScreenGui, starts every UI module, routes the server's events
 -- (state snapshots, toasts, sounds, banners, effects) and sends player

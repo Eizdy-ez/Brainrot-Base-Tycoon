@@ -1,3 +1,4 @@
+-- Util — small helper functions shared by the server and client modules.
 -- Util.luau — small helpers shared by server and client.
 
 local Util = {}

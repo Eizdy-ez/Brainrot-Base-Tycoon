@@ -1,3 +1,4 @@
+-- DataManager — player profiles: DataStore persistence, leaderstats and the client state snapshot.
 -- DataManager.luau — per-player profiles: DataStore persistence with pcall
 -- guards and a session fallback, leaderstats, and the state snapshot the
 -- client UI renders from.
