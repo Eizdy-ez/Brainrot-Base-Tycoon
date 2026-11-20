@@ -1,7 +1,7 @@
 -- ShopUI.luau — the shop panel: four upgrade tracks with live levels and
 -- prices, and the two zone unlocks. (Rebirth used to live here; since
 -- Round 9 it is the HUD's Rebirth button under Quest, behind its own
--- Yes/Tidak confirmation dialog.)
+-- Yes/No confirmation dialog.)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")

@@ -157,7 +157,7 @@ Config.Upgrades = {
 }
 
 --====================================================================--
--- Rebirth (Round 9): the HUD's reset button, behind a Yes/Tidak
+-- Rebirth (Round 9): the HUD's reset button, behind a Yes/No
 -- confirmation dialog. It wipes the whole run back to a fresh
 -- default profile — cash $50, no brainrots, no upgrades, zones
 -- re-locked, quests restarted. There is NO requirement and NO

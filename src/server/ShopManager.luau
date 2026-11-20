@@ -137,7 +137,7 @@ function ShopManager.UnlockZone(player, zi)
 end
 
 -- Rebirth (Round 9, user spec): a pure RESET button behind the
--- client's Yes/Tidak confirmation dialog. No requirement, no
+-- client's Yes/No confirmation dialog. No requirement, no
 -- permanent multiplier: the player's whole profile is swapped for
 -- a fresh default one — cash back to $50, displayed and carried
 -- brainrots gone, upgrades at zero, zones re-locked, quests back

@@ -183,11 +183,11 @@ function Hud.Start(c, gui)
 	bannerTitle = UI.Label(bannerFrame, "", UDim2.new(1, -20, 0, 54), UDim2.new(0, 10, 0, 4), { TextSize = 30, Align = Enum.TextXAlignment.Center, Stroke = true })
 	bannerSub = UI.Label(bannerFrame, "", UDim2.new(1, -20, 0, 32), UDim2.new(0, 10, 0, 58), { TextSize = 17, Align = Enum.TextXAlignment.Center })
 
-	-- rebirth confirmation dialog (Round 9, user spec): a dimmed
-	-- backdrop and a centred panel asking, in the user's words,
-	-- "Apakah kamu ingin rebirth? Semua progres akan hilang" with
-	-- a "Yes" and a "Tidak" button. Yes fires the server reset;
-	-- Tidak (or anything else) simply closes the dialog.
+	-- rebirth confirmation dialog (Round 9, user spec; English
+	-- wording since Round 10): a dimmed backdrop and a centred
+	-- panel asking "Do you want to rebirth? All progress will be
+	-- lost" with a "Yes" and a "No" button. Yes fires the server
+	-- reset; No (or anything else) simply closes the dialog.
 	rebirthBackdrop = Instance.new("Frame")
 	rebirthBackdrop.Name = "RebirthBackdrop"
 	rebirthBackdrop.Size = UDim2.new(1, 0, 1, 0)
@@ -202,13 +202,13 @@ function Hud.Start(c, gui)
 	rebirthDialog.ZIndex = 9
 	rebirthDialog.Visible = false
 	UI.Stroke(rebirthDialog, Color3.fromRGB(255, 120, 160), 2)
-	local dialogText = UI.Label(rebirthDialog, "Apakah kamu ingin rebirth? Semua progres akan hilang", UDim2.new(1, -44, 0, 92), UDim2.new(0, 22, 0, 20),
+	local dialogText = UI.Label(rebirthDialog, "Do you want to rebirth? All progress will be lost", UDim2.new(1, -44, 0, 92), UDim2.new(0, 22, 0, 20),
 		{ TextSize = 22, Wrapped = true, Align = Enum.TextXAlignment.Center, Stroke = true })
 	dialogText.ZIndex = 10
 	local yesBtn = UI.Button(rebirthDialog, "Yes", UDim2.new(0, 150, 0, 48), UDim2.new(0.5, -160, 1, -68), Color3.fromRGB(255, 95, 105))
 	yesBtn.TextSize = 20
 	yesBtn.ZIndex = 10
-	local noBtn = UI.Button(rebirthDialog, "Tidak", UDim2.new(0, 150, 0, 48), UDim2.new(0.5, 10, 1, -68), Color3.fromRGB(90, 96, 120))
+	local noBtn = UI.Button(rebirthDialog, "No", UDim2.new(0, 150, 0, 48), UDim2.new(0.5, 10, 1, -68), Color3.fromRGB(90, 96, 120))
 	noBtn.TextSize = 20
 	noBtn.ZIndex = 10
 	yesBtn.MouseButton1Click:Connect(function()
