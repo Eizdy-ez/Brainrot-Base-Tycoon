@@ -1,4 +1,5 @@
 -- QuestManager — the chained quest line: one active quest per player, progress tracking and cash rewards.
+-- Key responsibility: tracks the active quest from lifetime stats and pays its reward on completion.
 -- QuestManager.luau — the quest chain: one active quest per player, progress
 -- read from lifetime stats (with a baseline for the repeatable kinds), cash
 -- rewards on completion, chained automatically.

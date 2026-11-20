@@ -1,4 +1,5 @@
 -- ShopManager — everything that costs cash, server-side: the four upgrade tracks, zone unlocks and the rebirth reset.
+-- Key responsibility: validates and applies every cash purchase — upgrades, zone unlocks and rebirth.
 -- ShopManager.luau — everything that costs cash: the four upgrade tracks,
 -- zone unlocks at the gates, and the rebirth reset (with its aura).
 

@@ -1,4 +1,5 @@
 -- QuestUI — the quest tracker card: current quest, live progress bar and its cash reward.
+-- Key responsibility: shows the one active quest with its live progress and cash reward.
 -- QuestUI.luau — the quest tracker card: current quest, live progress bar,
 -- and its cash reward. Fed entirely by the server state snapshot.
 

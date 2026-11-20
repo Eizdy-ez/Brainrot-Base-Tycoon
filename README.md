@@ -46,6 +46,23 @@ display them at your base, and watch the cash roll in every second.
 A step-by-step tutorial guides your first loop, and your progress saves
 automatically.
 
+## Controls
+
+- **Move** — WASD / joystick; **jump** — Space.
+- **Buy** — walk up to a wandering wild brainrot and use its Buy prompt;
+  bought brainrots stack on your head automatically.
+- **Display** — step on a display pad at your base to place the top
+  carried brainrot; **collect** — step on the collect pad to bank the
+  pending pool.
+- **Dash** — Shift (a short speed burst with a cooldown) to hurry back
+  to your base.
+- **Bottom row** — **UPGRADE** opens the shop panel (Pads / Speed /
+  Carry / Luck), **LOCK** seals your base for 45 seconds, **REBIRTH**
+  asks for confirmation, then resets everything to a fresh $50 start.
+- **Side buttons** — **SHOP** (same upgrade panel plus the zone
+  unlocks), **QUEST** (the quest tracker) and **SOUND** (music and
+  sound effects on/off).
+
 ## The cast (all original)
 
 - **Common** — Toastino, Splashound, Moppina, Socktopus

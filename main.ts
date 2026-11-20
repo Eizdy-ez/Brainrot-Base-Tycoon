@@ -22,6 +22,7 @@ const here = fileURLToPath(new URL('.', import.meta.url));
 const out = process.env.MAKEFUN_OUTPUT_DIR ?? '/output';
 
 // This entry's game: "Brainrot Base Tycoon", a 3D brainrot-collecting tycoon built Rojo-first from src/.
+// Packaging only: every line of gameplay lives in the Luau sources under src/, never in this file.
 const ENTRY_TITLE = 'Brainrot Base Tycoon';
 console.log(`Handing in ${ENTRY_TITLE}: game.rbxl, src/, screenshots/ and PLAY.json -> ${out}`);
 

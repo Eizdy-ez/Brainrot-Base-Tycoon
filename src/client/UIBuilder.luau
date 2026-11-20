@@ -1,4 +1,5 @@
 -- UIBuilder — shared widget factory helpers so every client module builds its widgets the same way.
+-- Key responsibility: gives every button and panel the same rounded, stroked Fredoka look.
 -- UIBuilder.luau — tiny factory helpers so every client module builds its
 -- widgets the same way: rounded corners, soft strokes, Fredoka type.
 

@@ -1,4 +1,5 @@
 -- Economy — the money heartbeat: the per-second income tick and the collect-pad payout.
+-- Key responsibility: ticks income into each base's pending pool every second and pays it out on collect.
 -- Economy.luau — the money heartbeat: every second each displayed brainrot
 -- pays its income into the base's pending pool; stepping on the collect
 -- pad claims the pool as cash. (The old rebirth multiplier is permanently

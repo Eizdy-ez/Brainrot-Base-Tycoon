@@ -1,4 +1,5 @@
 -- ShopUI — the shop panel: four upgrade tracks with live levels and prices, plus the two zone unlocks.
+-- Key responsibility: presents upgrade levels, live prices and zone unlocks, and sends the buy actions.
 -- ShopUI.luau — the shop panel: four upgrade tracks with live levels and
 -- prices, and the two zone unlocks. Opened by the side SHOP button and
 -- by the bottom row's UPGRADE button (Round 10 — same panel, same

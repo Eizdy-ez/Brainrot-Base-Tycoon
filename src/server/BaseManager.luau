@@ -1,4 +1,5 @@
 -- BaseManager — owns the eight base plots: assignment, displayed brainrots, the collect pad and the base lock.
+-- Key responsibility: assigns each player a base and keeps its displayed brainrots, collect pad and lock in step with the profile.
 -- BaseManager.luau — owns the eight base plots: assignment, rendering the
 -- displayed brainrots from profile data, pad touch routing (collect —
 -- the only pad left since Round 10 moved upgrades, the base lock and

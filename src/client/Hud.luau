@@ -1,4 +1,5 @@
 -- Hud — always-on HUD: the money bar, carry pips, the side menu and the bottom Upgrade/Lock/Rebirth row.
+-- Key responsibility: keeps the money bar, side menu and bottom action row live from each state snapshot.
 -- Hud.luau — always-on interface: the money bar (cash, income/s, pending),
 -- carry pips, the side menu buttons (Shop / Quest / Sound), the bottom
 -- action row (Upgrade / Lock / Rebirth — buttons since Round 10, the

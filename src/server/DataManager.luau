@@ -1,4 +1,5 @@
 -- DataManager — player profiles: DataStore persistence, leaderstats and the client state snapshot.
+-- Key responsibility: owns the profile lifecycle — load, mutate, snapshot for the client, and save.
 -- DataManager.luau — per-player profiles: DataStore persistence with pcall
 -- guards and a session fallback, leaderstats, and the state snapshot the
 -- client UI renders from.

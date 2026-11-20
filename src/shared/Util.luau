@@ -1,4 +1,5 @@
 -- Util — small helper functions shared by the server and client modules.
+-- Key responsibility: cash and number formatting, weighted random picks, and small math and table helpers.
 -- Util.luau — small helpers shared by server and client.
 
 local Util = {}

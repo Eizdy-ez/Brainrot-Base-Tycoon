@@ -1,4 +1,5 @@
 -- Config — every tunable number and definition for Brainrot Base Tycoon, shared by server and client.
+-- Key responsibility: is the single source of truth both sides read for roster, prices, quests and audio.
 -- Config.luau — every tunable number and definition for Brainrot Base Tycoon.
 -- Shared by server and client: rarities, the brainrot roster, zones, upgrades,
 -- quests, rebirth, events and the (verified) audio table.
