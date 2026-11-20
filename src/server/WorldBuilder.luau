@@ -302,18 +302,19 @@ local function buildBase(parent, slot, centerX, centerZ)
 	door.CanCollide = false
 	base.GateDoor = door
 
-	-- 12 display pedestals hugging the walls, as in the concept: six
-	-- along the back wall, three along each side wall, leaving the
-	-- inlaid floor open in the middle.
+	-- 8 display pedestals hugging the walls (Round 9D: down from 12,
+	-- spread wider apart): four along the back wall 11 studs apart,
+	-- two along each side wall 13 studs apart, leaving the inlaid
+	-- floor open in the middle.
 	local padSpots = {}
-	for i = 0, 5 do
-		padSpots[#padSpots + 1] = { 18.6, -15 + i * 6 }
+	for i = 0, 3 do
+		padSpots[#padSpots + 1] = { 18.6, -16.5 + i * 11 }
 	end
-	for i = 0, 2 do
-		padSpots[#padSpots + 1] = { 2 + i * 6, -18.6 }
+	for i = 0, 1 do
+		padSpots[#padSpots + 1] = { 0 + i * 13, -18.6 }
 	end
-	for i = 0, 2 do
-		padSpots[#padSpots + 1] = { 2 + i * 6, 18.6 }
+	for i = 0, 1 do
+		padSpots[#padSpots + 1] = { 0 + i * 13, 18.6 }
 	end
 	for padIndex, spot in ipairs(padSpots) do
 		local pos = L(spot[1], spot[2])

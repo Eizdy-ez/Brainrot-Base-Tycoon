@@ -138,8 +138,8 @@ Config.WildWanderTime = { 9, 12 } -- seconds a wild wanders before it leaves
 -- Upgrades (bought on base pads or in the shop UI)
 --====================================================================--
 Config.Upgrades = {
-	Pads = { -- display pads: start 4, +2 per purchase, max 12
-		Start = 4, Step = 2, Max = 12, Costs = { 250, 900, 3000, 10000 },
+	Pads = { -- display pads: start 4, +2 per purchase, max 8 (Round 9D: fewer, wider-spaced pads)
+		Start = 4, Step = 2, Max = 8, Costs = { 250, 1500 },
 		Label = "+2 Display Pads",
 	},
 	Speed = { -- walk speed levels 0..5, +3 studs/s each

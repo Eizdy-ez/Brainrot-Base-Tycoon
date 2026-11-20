@@ -74,6 +74,15 @@ function DataManager.LoadProfile(player)
 	else
 		DataManager.SessionOnly[player] = true
 	end
+	-- Round 9D: saves from the 12-pad era clamp gracefully — pad count
+	-- caps at the new max and only the first 8 displayed entries are
+	-- kept; the rest are dropped, never an error.
+	if profile.Pads > Config.Upgrades.Pads.Max then
+		profile.Pads = Config.Upgrades.Pads.Max
+	end
+	while #profile.Displayed > Config.Upgrades.Pads.Max do
+		table.remove(profile.Displayed)
+	end
 	DataManager.Profiles[player] = profile
 	DataManager.SetupLeaderstats(player)
 	return profile
