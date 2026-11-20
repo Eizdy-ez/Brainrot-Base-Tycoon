@@ -1,21 +1,21 @@
 {
     "steps": [
         {
-            "screenshot": "1-start.png",
+            "screenshot": "1-field.jpg",
             "wait_ms": 800
         },
         {
             "keys": [
                 "W"
             ],
-            "screenshot": "2-play.png",
+            "screenshot": "2-buy.jpg",
             "wait_ms": 2500
         },
         {
             "keys": [
                 "S"
             ],
-            "screenshot": "3-end.png",
+            "screenshot": "4-base.jpg",
             "wait_ms": 2500
         }
     ],
