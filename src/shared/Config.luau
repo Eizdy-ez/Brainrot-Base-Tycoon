@@ -135,7 +135,9 @@ Config.SpawnInterval = 2.4 -- seconds between spawn attempts per zone
 Config.WildWanderTime = { 9, 12 } -- seconds a wild wanders before it leaves
 
 --====================================================================--
--- Upgrades (bought on base pads or in the shop UI)
+-- Upgrades (bought in the shop UI — opened by the side SHOP button
+-- or the bottom row's UPGRADE button; the base pads are gone since
+-- Round 10, prices and validation unchanged)
 --====================================================================--
 Config.Upgrades = {
 	Pads = { -- display pads: start 4, +2 per purchase, max 8 (Round 9D: fewer, wider-spaced pads)

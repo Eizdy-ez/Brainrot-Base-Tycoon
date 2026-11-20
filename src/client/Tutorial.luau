@@ -1,6 +1,8 @@
 -- Tutorial.luau — walks a new tycoon through their first loop: a hint bar
 -- plus a bouncing 3D arrow over the next thing to touch (field, own pad,
--- collect pad, upgrade pad). Driven by the server's TutorialStep.
+-- collect pad; the upgrade step has no world target since Round 10 —
+-- it points at the UPGRADE button in the bottom action row instead).
+-- Driven by the server's TutorialStep.
 
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -16,7 +18,7 @@ local STEP_TEXT = {
 	[0] = "🧠 Brainrots wander the fields — walk up and BUY one before it wanders away!",
 	[1] = "🏠 Carry it home! Step on a display pad at YOUR base to place it.",
 	[2] = "💰 Your brainrot earns cash — step on the GREEN pad to collect!",
-	[3] = "🛒 Buy an upgrade: step on a GOLD pad at your base, or open the SHOP!",
+	[3] = "🛒 Buy an upgrade: tap the UPGRADE button at the bottom of the screen!",
 }
 
 local function findBasePart(state, partName)
@@ -38,7 +40,7 @@ function Tutorial.Update(state)
 	if step == 0 then
 		targetPos = Vector3.new(0, 9, -50)
 	else
-		local partName = ({ [1] = "PadTop1", [2] = "CollectPad", [3] = "Upgrade_Pads" })[step]
+		local partName = ({ [1] = "PadTop1", [2] = "CollectPad" })[step]
 		local part = partName and findBasePart(state, partName)
 		if part then
 			targetPos = part.Position + Vector3.new(0, 6.5, 0)
@@ -51,7 +53,7 @@ end
 
 function Tutorial.Start(c, gui)
 	ctx = c
-	hintFrame = UI.Frame(gui, UDim2.new(0, 560, 0, 46), UDim2.new(0.5, -280, 1, -108), Color3.fromRGB(255, 170, 40), 0.05)
+	hintFrame = UI.Frame(gui, UDim2.new(0, 560, 0, 46), UDim2.new(0.5, -280, 1, -162), Color3.fromRGB(255, 170, 40), 0.05)
 	hintFrame.Visible = false
 	hintLabel = UI.Label(hintFrame, "", UDim2.new(1, -20, 1, 0), UDim2.new(0, 10, 0, 0), { TextSize = 17, Align = Enum.TextXAlignment.Center, Color = Color3.fromRGB(40, 32, 10) })
 

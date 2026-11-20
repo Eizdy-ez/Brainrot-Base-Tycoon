@@ -218,6 +218,12 @@ function DataManager.BuildState(player, ctx)
 		TutorialDone = profile.TutorialDone,
 		BaseSlot = base and base.Slot or 0,
 		GoldRain = ctx and ctx.GoldRainActive or false,
+		-- the HUD's LOCK button renders from these (Round 10: the
+		-- lock pad is gone; durations still Config.BaseLockTime /
+		-- Config.BaseLockCooldown, enforced in BaseManager.ToggleLock)
+		BaseLocked = base and base.Locked or false,
+		LockLeft = base and base.Locked and math.max(0, math.ceil(base.LockUntil - os.clock())) or 0,
+		LockCooldownLeft = base and not base.Locked and math.max(0, math.ceil(base.LockReadyAt - os.clock())) or 0,
 	}
 end
 

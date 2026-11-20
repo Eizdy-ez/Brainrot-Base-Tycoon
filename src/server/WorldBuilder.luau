@@ -1,7 +1,8 @@
 -- WorldBuilder.luau — constructs the whole island from code at server start:
 -- the spawn plaza AT the island centre, three fenced fields
 -- with gates, eight tycoon base plots ringed tight around the centre
--- (display pads, collect/lock/rebirth pads, upgrade buttons), a playful
+-- (display pads and a collect pad — upgrades, the base lock and
+-- rebirth live on the HUD's bottom button row since Round 10), a playful
 -- perimeter fence on every side, big readable signs, a leaderboard
 -- board, and decorations. The look is the classic brainrot one: BRIGHT
 -- DAYTIME, green grass, candy colours, toy-box bases, trees, flowers
@@ -216,7 +217,7 @@ local function buildBase(parent, slot, centerX, centerZ)
 	local base = {
 		Slot = slot, Center = Vector3.new(centerX, 1, centerZ), Model = model,
 		Pending = 0, Owner = nil, Locked = false, LockUntil = 0, LockReadyAt = 0,
-		Pads = {}, UpgradePads = {},
+		Pads = {},
 	}
 
 	-- pastel inlay strips set into the floor: a sparse cross (2 each
@@ -335,11 +336,9 @@ local function buildBase(parent, slot, centerX, centerZ)
 	base.CollectPad = collect
 	base.CollectLabel = padLabel(collect, "COLLECT\n$0", Color3.fromRGB(190, 255, 205), 3.6)
 
-	-- lock pad
-	local lPos = L(-7, 9)
-	local lock = mkPart(model, "LockPad", Vector3.new(5, 0.5, 5), CFrame.new(lPos.X, 1.25, lPos.Z), Color3.fromRGB(90, 160, 255), Enum.Material.SmoothPlastic)
-	base.LockPad = lock
-	base.LockLabel = padLabel(lock, "🔓 LOCK BASE", Color3.fromRGB(200, 225, 255), 3.4)
+	-- (No lock pad any more: the base lock is the HUD's LOCK button
+	-- in the bottom action row since Round 10 — same server-side
+	-- ToggleLock, same 45 s lock / 90 s cooldown from Config.)
 
 	-- a decorative toy cube floats on the spare floor spot by the pads
 	local fPos = L(-15, -9)
@@ -350,25 +349,10 @@ local function buildBase(parent, slot, centerX, centerZ)
 	holo.CanTouch = false
 	mkPart(model, "ToyCubeBase", Vector3.new(3.4, 0.4, 3.4), CFrame.new(fPos.X, 1.2, fPos.Z), CREAM_DARK, Enum.Material.SmoothPlastic)
 
-	-- rebirth pad
-	local rPos = L(-15, 9)
-	local rebirth = mkPart(model, "RebirthPad", Vector3.new(5.4, 0.5, 5.4), CFrame.new(rPos.X, 1.25, rPos.Z), Color3.fromRGB(255, 120, 160), Enum.Material.SmoothPlastic)
-	base.RebirthPad = rebirth
-	padLabel(rebirth, "🌟 REBIRTH", Color3.fromRGB(255, 205, 225), 3.4)
-
-	-- four step-on upgrade buttons along the front edge
-	local upgradeDefs = {
-		{ Key = "Pads", Text = "+2 PADS" },
-		{ Key = "Speed", Text = "+SPEED" },
-		{ Key = "Carry", Text = "+CARRY" },
-		{ Key = "Luck", Text = "+LUCK" },
-	}
-	for i, udef in ipairs(upgradeDefs) do
-		local pos = L(-19.5, -16.5 + (i - 1) * 11)
-		local btn = mkPart(model, "Upgrade_" .. udef.Key, Vector3.new(4.6, 0.6, 4.6), CFrame.new(pos.X, 1.3, pos.Z), Color3.fromRGB(255, 196, 66), Enum.Material.SmoothPlastic)
-		local label = padLabel(btn, udef.Text, Color3.fromRGB(255, 240, 190), 3.6)
-		base.UpgradePads[udef.Key] = { Part = btn, Label = label }
-	end
+	-- (No rebirth pad or step-on upgrade buttons any more: rebirth
+	-- and upgrades are the HUD's REBIRTH and UPGRADE buttons in the
+	-- bottom action row since Round 10 — same confirmation dialog,
+	-- same ShopManager.BuyUpgrade validation and Config prices.)
 
 	-- owner sign as a header above the gate, facing the island centre
 	local signPos = L(-22.6, 0)

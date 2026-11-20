@@ -1,7 +1,9 @@
 -- Hud.luau — always-on interface: the money bar (cash, income/s, pending),
--- carry pips, the menu buttons (Shop / Quest / Rebirth / Sound), the
--- rebirth confirmation dialog, toast notifications, and the big centre
--- banner used by events and rebirths.
+-- carry pips, the side menu buttons (Shop / Quest / Sound), the bottom
+-- action row (Upgrade / Lock / Rebirth — buttons since Round 10, the
+-- base pads for them are gone), the rebirth confirmation dialog,
+-- toast notifications, and the big centre banner used by events
+-- and rebirths.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +15,7 @@ local UI = require(script.Parent:WaitForChild("UIBuilder"))
 local Hud = {}
 local ctx
 local cashLabel, incomeLabel, pendingLabel, carryLabel
+local lockButton
 local toastHolder, bannerFrame, bannerTitle, bannerSub
 local rebirthBackdrop, rebirthDialog
 local deltaLabel
@@ -93,6 +96,20 @@ function Hud.Update(state)
 	incomeLabel.Text = "⚡ $" .. Util.FormatCash(state.IncomePerSec) .. "/s"
 	pendingLabel.Text = "🏠 $" .. Util.FormatInt(state.Pending) .. " waiting"
 	carryLabel.Text = "🎒 " .. state.CarryCount .. "/" .. state.CarryCapacity
+	-- the LOCK button mirrors the base lock live: locked (with the
+	-- seconds left), recharging (seconds left), or ready
+	if lockButton then
+		if state.BaseLocked then
+			lockButton.Text = "🔒 " .. (state.LockLeft or 0) .. "s"
+			lockButton.BackgroundColor3 = Color3.fromRGB(70, 110, 180)
+		elseif (state.LockCooldownLeft or 0) > 0 then
+			lockButton.Text = "🔓 " .. state.LockCooldownLeft .. "s"
+			lockButton.BackgroundColor3 = Color3.fromRGB(90, 96, 120)
+		else
+			lockButton.Text = "🔓 LOCK"
+			lockButton.BackgroundColor3 = Color3.fromRGB(90, 160, 255)
+		end
+	end
 	if lastCash ~= nil and state.Cash ~= lastCash then
 		showDelta(state.Cash - lastCash)
 	end
@@ -117,11 +134,12 @@ function Hud.Start(c, gui)
 	deltaLabel.BackgroundTransparency = 1
 	deltaLabel.Visible = false
 
-	-- menu buttons (right side): Shop, Quest, REBIRTH directly
-	-- under Quest (Round 9, user spec), then Sound
+	-- menu buttons (right side): Shop, Quest, Sound. (REBIRTH used
+	-- to sit under Quest; since Round 10 it lives in the bottom
+	-- action row with UPGRADE and LOCK, per the user's spec.)
 	local buttons = Instance.new("Frame")
 	buttons.Name = "MenuButtons"
-	buttons.Size = UDim2.new(0, 118, 0, 192)
+	buttons.Size = UDim2.new(0, 118, 0, 142)
 	buttons.Position = UDim2.new(1, -128, 0, 74)
 	buttons.BackgroundTransparency = 1
 	buttons.Parent = gui
@@ -130,7 +148,6 @@ function Hud.Start(c, gui)
 	layout.Parent = buttons
 	local shopBtn = UI.Button(buttons, "🛒 SHOP", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 150, 60))
 	local questBtn = UI.Button(buttons, "📜 QUEST", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(64, 160, 255))
-	local rebirthBtn = UI.Button(buttons, "🌟 REBIRTH", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 120, 160))
 	local soundBtn = UI.Button(buttons, "🔊 SOUND", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(90, 96, 120))
 	shopBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)
@@ -139,10 +156,6 @@ function Hud.Start(c, gui)
 	questBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)
 		ctx.QuestUI.Toggle()
-	end)
-	rebirthBtn.MouseButton1Click:Connect(function()
-		ctx.Audio.PlaySfx("Click", 1)
-		Hud.ShowRebirthConfirm()
 	end)
 	soundBtn.MouseButton1Click:Connect(function()
 		local muted = ctx.Audio.ToggleMute()
@@ -158,6 +171,46 @@ function Hud.Start(c, gui)
 		if ctx.RequestDash then
 			ctx.RequestDash()
 		end
+	end)
+
+	-- bottom action row (Round 10, user spec): UPGRADE, LOCK and
+	-- REBIRTH as real buttons along the BOTTOM of the screen, NOT
+	-- in the side menu — the step-on upgrade buttons, lock pad and
+	-- rebirth pad at the base are gone. The mechanisms behind them
+	-- are unchanged: UPGRADE opens the shop panel (the same four
+	-- tracks, Config prices and server-side BuyUpgrade validation
+	-- the pads used), LOCK fires the server's ToggleLock (45 s
+	-- lock / 90 s cooldown from Config; Hud.Update shows the live
+	-- locked / recharging state on the button), REBIRTH opens the
+	-- same confirmation dialog as the old side button and pad.
+	local actionRow = Instance.new("Frame")
+	actionRow.Name = "ActionRow"
+	actionRow.Size = UDim2.new(0, 534, 0, 48)
+	actionRow.Position = UDim2.new(0.5, -267, 1, -104)
+	actionRow.BackgroundTransparency = 1
+	actionRow.Parent = gui
+	local rowLayout = Instance.new("UIListLayout")
+	rowLayout.FillDirection = Enum.FillDirection.Horizontal
+	rowLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	rowLayout.Padding = UDim.new(0, 12)
+	rowLayout.Parent = actionRow
+	local upgradeBtn = UI.Button(actionRow, "⬆️ UPGRADE", UDim2.new(0, 170, 0, 48), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 170, 40))
+	upgradeBtn.TextSize = 19
+	lockButton = UI.Button(actionRow, "🔓 LOCK", UDim2.new(0, 170, 0, 48), UDim2.new(0, 0, 0, 0), Color3.fromRGB(90, 160, 255))
+	lockButton.TextSize = 19
+	local rebirthBtn = UI.Button(actionRow, "🌟 REBIRTH", UDim2.new(0, 170, 0, 48), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 120, 160))
+	rebirthBtn.TextSize = 19
+	upgradeBtn.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		ctx.ShopUI.Toggle()
+	end)
+	lockButton.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		ctx.Remotes.Action:FireServer("ToggleLock")
+	end)
+	rebirthBtn.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		Hud.ShowRebirthConfirm()
 	end)
 
 	-- carry pips (bottom centre)

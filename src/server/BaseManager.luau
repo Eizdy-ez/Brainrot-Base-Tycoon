@@ -1,6 +1,8 @@
 -- BaseManager.luau — owns the eight base plots: assignment, rendering the
--- displayed brainrots from profile data, pad touch routing (collect, lock,
--- rebirth, upgrades), the base lock, and the locked-zone guard.
+-- displayed brainrots from profile data, pad touch routing (collect —
+-- the only pad left since Round 10 moved upgrades, the base lock and
+-- rebirth onto the HUD's bottom buttons), the base lock itself, and
+-- the locked-zone guard.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -84,32 +86,6 @@ function BaseManager.RenderDisplayed(base)
 	end
 end
 
-function BaseManager.UpdateShopLabels(base)
-	local profile = ctx.Data.Profiles[base.Owner]
-	if not profile then
-		for _, up in pairs(base.UpgradePads) do
-			up.Label.Text = "—"
-		end
-		return
-	end
-	local function setLabel(key, current, maxLevel, costs, suffix)
-		local up = base.UpgradePads[key]
-		if not up then
-			return
-		end
-		if current >= maxLevel then
-			up.Label.Text = suffix .. "\nMAX ⭐"
-		else
-			up.Label.Text = suffix .. "\n$" .. Util.FormatInt(costs[current + 1])
-		end
-	end
-	local padsLvl = (profile.Pads - Config.Upgrades.Pads.Start) / Config.Upgrades.Pads.Step
-	setLabel("Pads", padsLvl, #Config.Upgrades.Pads.Costs, Config.Upgrades.Pads.Costs, "🟦 +2 PADS")
-	setLabel("Speed", profile.SpeedLvl, Config.Upgrades.Speed.Max, Config.Upgrades.Speed.Costs, "👟 +SPEED")
-	setLabel("Carry", profile.CarryLvl, Config.Upgrades.Carry.Max, Config.Upgrades.Carry.Costs, "🎒 +CARRY")
-	setLabel("Luck", profile.LuckLvl, Config.Upgrades.Luck.Max, Config.Upgrades.Luck.Costs, "🍀 +LUCK")
-end
-
 function BaseManager.Assign(player)
 	for slot = 1, #BaseManager.List do
 		local base = BaseManager.List[slot]
@@ -121,7 +97,6 @@ function BaseManager.Assign(player)
 			BaseManager.ByPlayer[player] = base
 			base.SignLabel.Text = "🏠 " .. player.DisplayName:upper() .. "'S BASE"
 			BaseManager.RenderDisplayed(base)
-			BaseManager.UpdateShopLabels(base)
 			return base
 		end
 	end
@@ -145,7 +120,6 @@ function BaseManager.Release(player)
 	BaseManager.UpdateGate(base)
 	base.SignLabel.Text = "EMPTY BASE"
 	BaseManager.ByPlayer[player] = nil
-	BaseManager.UpdateShopLabels(base)
 end
 
 function BaseManager.TeleportToBase(player)
@@ -168,29 +142,10 @@ local function wireBase(base)
 			ctx.Economy.Collect(base)
 		end
 	end)
-	base.LockPad.Touched:Connect(function(hit)
-		local player = playerFromHit(hit)
-		if player and player == base.Owner and not debounced(base.LockPad, player, 0.8) then
-			BaseManager.ToggleLock(base)
-		end
-	end)
-	base.RebirthPad.Touched:Connect(function(hit)
-		local player = playerFromHit(hit)
-		if player and player == base.Owner and not debounced(base.RebirthPad, player, 0.8) then
-			-- the pad opens the same rebirth confirmation dialog as
-			-- the HUD's Rebirth button (Round 9)
-			ctx.Remotes.Event:FireClient(player, "OpenRebirth")
-			ctx.Remotes.Event:FireClient(player, "PlaySound", "Click", 1)
-		end
-	end)
-	for key, up in pairs(base.UpgradePads) do
-		up.Part.Touched:Connect(function(hit)
-			local player = playerFromHit(hit)
-			if player and player == base.Owner and not debounced(up.Part, player, 0.7) then
-				ctx.Shop.BuyUpgrade(player, key)
-			end
-		end)
-	end
+	-- (Lock, rebirth and upgrade pads are gone since Round 10:
+	-- the HUD's bottom-row LOCK / REBIRTH / UPGRADE buttons drive
+	-- the same server functions — ToggleLock below, the rebirth
+	-- confirmation dialog, ShopManager.BuyUpgrade.)
 end
 
 -- The gate door mirrors the lock: while the base is locked the door is
@@ -229,7 +184,6 @@ function BaseManager.ToggleLock(base)
 	base.Locked = true
 	base.LockUntil = now + Config.BaseLockTime
 	base.LockReadyAt = now + Config.BaseLockCooldown
-	base.LockLabel.Text = "🔒 LOCKED!"
 	BaseManager.UpdateGate(base)
 	-- push a snapshot so the owner's client re-clears its own door pass
 	ctx.Data.PushState(player, ctx)
@@ -265,7 +219,10 @@ function BaseManager.Start(c)
 		end
 	end)
 
-	-- lock labels + unlock expiry
+	-- lock expiry + the HUD LOCK button's live countdown: while a
+	-- base is locked (or its lock is still recharging) the owner
+	-- gets a fresh snapshot every second so the button can tick
+	-- (the state carries BaseLocked / LockLeft / LockCooldownLeft)
 	task.spawn(function()
 		while true do
 			task.wait(1)
@@ -273,13 +230,13 @@ function BaseManager.Start(c)
 			for _, base in ipairs(BaseManager.List) do
 				if base.Locked and now >= base.LockUntil then
 					base.Locked = false
-					base.LockLabel.Text = "🔓 LOCK BASE"
 					BaseManager.UpdateGate(base)
 					if base.Owner then
 						ctx.Remotes.Event:FireClient(base.Owner, "Notify", "🔓 Your base lock expired!", "Error")
+						ctx.Data.PushState(base.Owner, ctx)
 					end
-				elseif base.Locked then
-					base.LockLabel.Text = "🔒 " .. math.ceil(base.LockUntil - now) .. "s"
+				elseif base.Owner and (base.Locked or now < base.LockReadyAt) then
+					ctx.Data.PushState(base.Owner, ctx)
 				end
 			end
 		end

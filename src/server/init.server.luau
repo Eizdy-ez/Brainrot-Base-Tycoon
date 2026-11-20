@@ -100,6 +100,13 @@ actionRemote.OnServerEvent:Connect(function(player, action, a, b)
 		ShopManager.BuyUpgrade(player, a)
 	elseif action == "Rebirth" then
 		ShopManager.Rebirth(player)
+	elseif action == "ToggleLock" then
+		-- the HUD's LOCK button (Round 10): same server-side toggle
+		-- the lock pad used to fire, on the player's OWN base only
+		local base = BaseManager.ByPlayer[player]
+		if base then
+			BaseManager.ToggleLock(base)
+		end
 	elseif action == "UnlockZone" and type(a) == "number" and (a == 2 or a == 3) then
 		ShopManager.UnlockZone(player, a)
 	elseif action == "Dash" then

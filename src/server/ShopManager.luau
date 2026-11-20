@@ -96,9 +96,6 @@ function ShopManager.BuyUpgrade(player, key)
 	if key == "Speed" then
 		ShopManager.ApplySpeed(player)
 	end
-	if base then
-		ctx.Bases.UpdateShopLabels(base)
-	end
 	if profile.TutorialStep == 3 then
 		profile.TutorialStep = 4
 		profile.TutorialDone = true
@@ -157,7 +154,6 @@ function ShopManager.Rebirth(player)
 	if base then
 		base.Pending = 0
 		ctx.Bases.RenderDisplayed(base)
-		ctx.Bases.UpdateShopLabels(base)
 	end
 	ShopManager.ApplySpeed(player)
 	ShopManager.ApplyAura(player)
