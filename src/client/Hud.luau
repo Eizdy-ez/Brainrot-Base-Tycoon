@@ -1,6 +1,7 @@
 -- Hud.luau — always-on interface: the money bar (cash, income/s, pending),
--- carry pips, the menu buttons (Shop / Quest / Sound), toast
--- notifications, and the big centre banner used by events and rebirths.
+-- carry pips, the menu buttons (Shop / Quest / Rebirth / Sound), the
+-- rebirth confirmation dialog, toast notifications, and the big centre
+-- banner used by events and rebirths.
 
 local TweenService = game:GetService("TweenService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +14,7 @@ local Hud = {}
 local ctx
 local cashLabel, incomeLabel, pendingLabel, rebirthLabel, carryLabel
 local toastHolder, bannerFrame, bannerTitle, bannerSub
+local rebirthBackdrop, rebirthDialog
 local deltaLabel
 local lastCash = nil
 local deltaToken = 0
@@ -112,10 +114,11 @@ function Hud.Start(c, gui)
 	deltaLabel.BackgroundTransparency = 1
 	deltaLabel.Visible = false
 
-	-- menu buttons (right side)
+	-- menu buttons (right side): Shop, Quest, REBIRTH directly
+	-- under Quest (Round 9, user spec), then Sound
 	local buttons = Instance.new("Frame")
 	buttons.Name = "MenuButtons"
-	buttons.Size = UDim2.new(0, 118, 0, 142)
+	buttons.Size = UDim2.new(0, 118, 0, 192)
 	buttons.Position = UDim2.new(1, -128, 0, 74)
 	buttons.BackgroundTransparency = 1
 	buttons.Parent = gui
@@ -124,6 +127,7 @@ function Hud.Start(c, gui)
 	layout.Parent = buttons
 	local shopBtn = UI.Button(buttons, "🛒 SHOP", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 150, 60))
 	local questBtn = UI.Button(buttons, "📜 QUEST", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(64, 160, 255))
+	local rebirthBtn = UI.Button(buttons, "🌟 REBIRTH", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(255, 120, 160))
 	local soundBtn = UI.Button(buttons, "🔊 SOUND", UDim2.new(1, 0, 0, 42), UDim2.new(0, 0, 0, 0), Color3.fromRGB(90, 96, 120))
 	shopBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)
@@ -132,6 +136,10 @@ function Hud.Start(c, gui)
 	questBtn.MouseButton1Click:Connect(function()
 		ctx.Audio.PlaySfx("Click", 1)
 		ctx.QuestUI.Toggle()
+	end)
+	rebirthBtn.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		Hud.ShowRebirthConfirm()
 	end)
 	soundBtn.MouseButton1Click:Connect(function()
 		local muted = ctx.Audio.ToggleMute()
@@ -171,6 +179,55 @@ function Hud.Start(c, gui)
 	bannerFrame.Visible = false
 	bannerTitle = UI.Label(bannerFrame, "", UDim2.new(1, -20, 0, 54), UDim2.new(0, 10, 0, 4), { TextSize = 30, Align = Enum.TextXAlignment.Center, Stroke = true })
 	bannerSub = UI.Label(bannerFrame, "", UDim2.new(1, -20, 0, 32), UDim2.new(0, 10, 0, 58), { TextSize = 17, Align = Enum.TextXAlignment.Center })
+
+	-- rebirth confirmation dialog (Round 9, user spec): a dimmed
+	-- backdrop and a centred panel asking, in the user's words,
+	-- "Apakah kamu ingin rebirth? Semua progres akan hilang" with
+	-- a "Yes" and a "Tidak" button. Yes fires the server reset;
+	-- Tidak (or anything else) simply closes the dialog.
+	rebirthBackdrop = Instance.new("Frame")
+	rebirthBackdrop.Name = "RebirthBackdrop"
+	rebirthBackdrop.Size = UDim2.new(1, 0, 1, 0)
+	rebirthBackdrop.BackgroundColor3 = Color3.fromRGB(8, 8, 14)
+	rebirthBackdrop.BackgroundTransparency = 0.45
+	rebirthBackdrop.BorderSizePixel = 0
+	rebirthBackdrop.ZIndex = 8
+	rebirthBackdrop.Visible = false
+	rebirthBackdrop.Parent = gui
+	rebirthDialog = UI.Frame(gui, UDim2.new(0, 470, 0, 226), UDim2.new(0.5, -235, 0.5, -113), Color3.fromRGB(34, 36, 48), 0)
+	rebirthDialog.Name = "RebirthDialog"
+	rebirthDialog.ZIndex = 9
+	rebirthDialog.Visible = false
+	UI.Stroke(rebirthDialog, Color3.fromRGB(255, 120, 160), 2)
+	local dialogText = UI.Label(rebirthDialog, "Apakah kamu ingin rebirth? Semua progres akan hilang", UDim2.new(1, -44, 0, 92), UDim2.new(0, 22, 0, 20),
+		{ TextSize = 22, Wrapped = true, Align = Enum.TextXAlignment.Center, Stroke = true })
+	dialogText.ZIndex = 10
+	local yesBtn = UI.Button(rebirthDialog, "Yes", UDim2.new(0, 150, 0, 48), UDim2.new(0.5, -160, 1, -68), Color3.fromRGB(255, 95, 105))
+	yesBtn.TextSize = 20
+	yesBtn.ZIndex = 10
+	local noBtn = UI.Button(rebirthDialog, "Tidak", UDim2.new(0, 150, 0, 48), UDim2.new(0.5, 10, 1, -68), Color3.fromRGB(90, 96, 120))
+	noBtn.TextSize = 20
+	noBtn.ZIndex = 10
+	yesBtn.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		Hud.HideRebirthConfirm()
+		ctx.ShopUI.Close()
+		ctx.Remotes.Action:FireServer("Rebirth")
+	end)
+	noBtn.MouseButton1Click:Connect(function()
+		ctx.Audio.PlaySfx("Click", 1)
+		Hud.HideRebirthConfirm()
+	end)
+end
+
+function Hud.ShowRebirthConfirm()
+	rebirthBackdrop.Visible = true
+	rebirthDialog.Visible = true
+end
+
+function Hud.HideRebirthConfirm()
+	rebirthBackdrop.Visible = false
+	rebirthDialog.Visible = false
 end
 
 return Hud

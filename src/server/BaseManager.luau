@@ -177,7 +177,9 @@ local function wireBase(base)
 	base.RebirthPad.Touched:Connect(function(hit)
 		local player = playerFromHit(hit)
 		if player and player == base.Owner and not debounced(base.RebirthPad, player, 0.8) then
-			ctx.Remotes.Event:FireClient(player, "OpenPanel", "Shop")
+			-- the pad opens the same rebirth confirmation dialog as
+			-- the HUD's Rebirth button (Round 9)
+			ctx.Remotes.Event:FireClient(player, "OpenRebirth")
 			ctx.Remotes.Event:FireClient(player, "PlaySound", "Click", 1)
 		end
 	end)

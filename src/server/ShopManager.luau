@@ -1,5 +1,5 @@
 -- ShopManager.luau — everything that costs cash: the four upgrade tracks,
--- zone unlocks at the gates, and rebirth (with its aura).
+-- zone unlocks at the gates, and the rebirth reset (with its aura).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -136,26 +136,24 @@ function ShopManager.UnlockZone(player, zi)
 	ctx.Data.PushState(player, ctx)
 end
 
+-- Rebirth (Round 9, user spec): a pure RESET button behind the
+-- client's Yes/Tidak confirmation dialog. No requirement, no
+-- permanent multiplier: the player's whole profile is swapped for
+-- a fresh default one — cash back to $50, displayed and carried
+-- brainrots gone, upgrades at zero, zones re-locked, quests back
+-- to the first, tutorial restarted, and the old rebirth count
+-- (and with it the old multiplier and aura) gone for good. The
+-- reset is saved to the DataStore immediately; other players are
+-- untouched.
 function ShopManager.Rebirth(player)
-	local profile = ctx.Data.Profiles[player]
+	if not ctx.Data.Profiles[player] then
+		return
+	end
 	local base = ctx.Bases.ByPlayer[player]
-	if not profile then
-		return
-	end
-	local requirement = Config.RebirthRequirement(profile.Rebirths)
-	if profile.TotalEarned < requirement then
-		notify(player, "🌟 Rebirth needs $" .. Util.FormatInt(requirement) .. " lifetime earned (you: $" .. Util.FormatInt(profile.TotalEarned) .. ")", "Error")
-		sound(player, "Error", 1)
-		return
-	end
-	profile.Rebirths += 1
-	profile.Cash = Config.StartCash
-	profile.Pads = Config.Upgrades.Pads.Start
-	profile.SpeedLvl = 0
-	profile.CarryLvl = 0
-	profile.LuckLvl = 0
-	profile.Zones = { true, false, false }
-	profile.Displayed = {}
+	-- carried brainrots are destroyed outright: a fresh run keeps
+	-- nothing in hand either
+	ctx.Carry.ClearPlayer(player)
+	ctx.Data.Profiles[player] = ctx.Data.DefaultProfile()
 	if base then
 		base.Pending = 0
 		ctx.Bases.RenderDisplayed(base)
@@ -164,10 +162,10 @@ function ShopManager.Rebirth(player)
 	ShopManager.ApplySpeed(player)
 	ShopManager.ApplyAura(player)
 	ctx.Data.SyncLeaderstats(player)
-	notify(player, "🌟 REBIRTH #" .. profile.Rebirths .. "! Income is now x" .. string.format("%.1f", Config.IncomeMultiplier(profile.Rebirths)) .. " forever!", "Success")
+	notify(player, "🌟 Rebirth! Progress reset — a fresh start with $" .. Util.FormatInt(Config.StartCash) .. "!", "Success")
 	sound(player, "Fanfare", 1)
 	sound(player, "Celebrate", 1)
-	ctx.Remotes.Event:FireClient(player, "Banner", "🌟 REBIRTH #" .. profile.Rebirths .. "!", "Permanent income x" .. string.format("%.1f", Config.IncomeMultiplier(profile.Rebirths)), Color3.fromRGB(255, 120, 200), 4)
+	ctx.Remotes.Event:FireClient(player, "Banner", "🌟 REBIRTH!", "Progress reset — back to a fresh $" .. Util.FormatInt(Config.StartCash) .. " start", Color3.fromRGB(255, 120, 200), 4)
 	ctx.Quests.Refresh(player)
 	ctx.Data.PushState(player, ctx)
 	ctx.Data.SaveProfile(player)

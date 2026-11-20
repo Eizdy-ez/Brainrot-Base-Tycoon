@@ -80,6 +80,8 @@ eventRemote.OnClientEvent:Connect(function(eventName, a, b, c, d)
 		if a == "Shop" then
 			ShopUI.Open()
 		end
+	elseif eventName == "OpenRebirth" then
+		Hud.ShowRebirthConfirm()
 	elseif eventName == "EventMusic" then
 		AudioClient.PlayBgm(a)
 	end

@@ -1,6 +1,7 @@
 -- ShopUI.luau — the shop panel: four upgrade tracks with live levels and
--- prices, the two zone unlocks, and the rebirth altar (two-click confirm,
--- because rebirth resets your run).
+-- prices, and the two zone unlocks. (Rebirth used to live here; since
+-- Round 9 it is the HUD's Rebirth button under Quest, behind its own
+-- Yes/Tidak confirmation dialog.)
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -13,8 +14,6 @@ local ctx
 local panel
 local upgradeRows = {} -- [key] = { Level = label, Button = button }
 local zoneRows = {}    -- [zi] = { Button = button, Status = label }
-local rebirthInfo, rebirthButton
-local rebirthArmed = false
 
 local function makeRow(parent, y, height)
 	local row = UI.Frame(parent, UDim2.new(1, -24, 0, height), UDim2.new(0, 12, 0, y), Color3.fromRGB(50, 53, 70), 0)
@@ -67,23 +66,11 @@ function ShopUI.Update(state)
 			row.Button.BackgroundColor3 = state.Cash >= zone.Price and Color3.fromRGB(64, 190, 90) or Color3.fromRGB(150, 90, 90)
 		end
 	end
-	local req = state.RebirthRequirement
-	rebirthInfo.Text = "Rebirth #" .. (state.Rebirths + 1) .. ": needs $" .. Util.FormatInt(req) .. " lifetime earned (you: $" .. Util.FormatInt(state.TotalEarned) .. ")\n"
-		.. "Income x" .. string.format("%.1f", state.IncomeMultiplier) .. " → x" .. string.format("%.1f", state.IncomeMultiplier + Config.RebirthMultPer)
-		.. "  •  Resets cash, upgrades, zones & displayed brainrots!"
-	if state.TotalEarned >= req then
-		rebirthButton.Text = rebirthArmed and "⚠️ CLICK AGAIN TO CONFIRM RESET!" or "🌟 REBIRTH NOW"
-		rebirthButton.BackgroundColor3 = rebirthArmed and Color3.fromRGB(255, 90, 90) or Color3.fromRGB(255, 120, 160)
-	else
-		rebirthButton.Text = "🌟 REBIRTH (locked)"
-		rebirthButton.BackgroundColor3 = Color3.fromRGB(90, 96, 120)
-		rebirthArmed = false
-	end
 end
 
 function ShopUI.Start(c, gui)
 	ctx = c
-	panel = UI.Frame(gui, UDim2.new(0, 500, 0, 600), UDim2.new(0.5, -250, 0.5, -300), Color3.fromRGB(34, 36, 48), 0.03)
+	panel = UI.Frame(gui, UDim2.new(0, 500, 0, 488), UDim2.new(0.5, -250, 0.5, -244), Color3.fromRGB(34, 36, 48), 0.03)
 	panel.Visible = false
 	UI.Label(panel, "🛒 TYCOON SHOP", UDim2.new(0, 300, 0, 40), UDim2.new(0, 16, 0, 8), { TextSize = 24, Color = Color3.fromRGB(255, 196, 66) })
 	local close = UI.Button(panel, "✕", UDim2.new(0, 40, 0, 40), UDim2.new(1, -52, 0, 8), Color3.fromRGB(200, 70, 70))
@@ -123,34 +110,6 @@ function ShopUI.Start(c, gui)
 		zoneRows[zi] = { Button = button }
 		y += 60
 	end
-
-	UI.Label(panel, "REBIRTH", UDim2.new(1, -24, 0, 24), UDim2.new(0, 12, 0, y), { TextSize = 16, Color = Color3.fromRGB(255, 170, 210) })
-	y += 28
-	local row = makeRow(panel, y, 108)
-	rebirthInfo = UI.Label(row, "…", UDim2.new(1, -20, 0, 58), UDim2.new(0, 10, 0, 4), { TextSize = 14, Wrapped = true })
-	rebirthInfo.TextYAlignment = Enum.TextYAlignment.Top
-	rebirthButton = UI.Button(row, "🌟 REBIRTH", UDim2.new(1, -20, 0, 38), UDim2.new(0, 10, 0, 62), Color3.fromRGB(255, 120, 160))
-	rebirthButton.MouseButton1Click:Connect(function()
-		local state = ctx.State
-		if not state or state.TotalEarned < state.RebirthRequirement then
-			ctx.Audio.PlaySfx("Error", 1)
-			return
-		end
-		if not rebirthArmed then
-			rebirthArmed = true
-			ShopUI.Update(state)
-			task.delay(4, function()
-				rebirthArmed = false
-				if ctx.State then
-					ShopUI.Update(ctx.State)
-				end
-			end)
-		else
-			rebirthArmed = false
-			ctx.Remotes.Action:FireServer("Rebirth")
-			ShopUI.Close()
-		end
-	end)
 end
 
 return ShopUI

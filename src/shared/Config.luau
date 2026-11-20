@@ -157,8 +157,13 @@ Config.Upgrades = {
 }
 
 --====================================================================--
--- Rebirth: resets cash/upgrades/zones/displayed; +50% income each time.
--- Requirement is lifetime TotalEarned.
+-- Rebirth (Round 9): the HUD's reset button, behind a Yes/Tidak
+-- confirmation dialog. It wipes the whole run back to a fresh
+-- default profile — cash $50, no brainrots, no upgrades, zones
+-- re-locked, quests restarted. There is NO requirement and NO
+-- permanent multiplier any more; the requirement/multiplier
+-- helpers below survive only because the state snapshot still
+-- reports them (Rebirths now stays 0, so the multiplier is x1.0).
 --====================================================================--
 Config.RebirthBaseRequirement = 100000
 Config.RebirthRequirementGrowth = 6
@@ -173,7 +178,7 @@ end
 --====================================================================--
 -- Quests: a chain, one active at a time. Kind drives which game event
 -- advances it: Place, Earn (lifetime cash), Buy (upgrades), BuyBrainrot,
--- BuyRarity (best rarity bought), UnlockZone, Rebirth.
+-- BuyRarity (best rarity bought), UnlockZone.
 --====================================================================--
 Config.Quests = {
 	{ Text = "Place a Brainrot on a pad at your base",        Kind = "Place",       Target = 1,      Reward = 100 },
@@ -185,7 +190,7 @@ Config.Quests = {
 	{ Text = "Unlock the Candy Fields",                      Kind = "UnlockZone",  Target = 2,      Reward = 4000 },
 	{ Text = "Buy 12 Brainrots from the fields",              Kind = "BuyBrainrot", Target = 12,     Reward = 6000 },
 	{ Text = "Earn $100,000 in total",                        Kind = "Earn",        Target = 100000, Reward = 15000 },
-	{ Text = "Rebirth for the first time",                    Kind = "Rebirth",     Target = 1,      Reward = 25000 },
+	{ Text = "Earn $250,000 in total",                        Kind = "Earn",        Target = 250000, Reward = 25000 },
 }
 
 --====================================================================--
