@@ -9,7 +9,7 @@
 A 3D brainrot-collecting tycoon for Roblox, built for the make.fun bounty
 [Make the best AI Roblox brainrot game](https://make.fun/bounty/roblox-brainrot-01).
 
-**Play it here: https://www.roblox.com/games/130449382374278**
+**Play it here: https://www.roblox.com/games/106965351886631**
 
 Nineteen original brainrot characters wander three sunny fields — a
 toaster-headed toast tycoon, a lamp-headed daydreamer, a cookie robot, a
